@@ -1,7 +1,12 @@
 import java.util.Arrays;
 
 public class PlayerSkeleton {
-
+	
+	private final double fai = 0.72; //inertia weight
+	private final double c1 = 1.42;	 //cognitive term
+	private final double c2 = 1.42;	 //social term
+	private final double vmax = 0.5; //velocity max
+	
 	//implement this function to have a working system
 	public int pickMove(State s, int[][] legalMoves) {
 		
@@ -27,34 +32,45 @@ public class PlayerSkeleton {
 	
 }
 
+class Particle {
+	/*
+	 * weight of line cleared
+	 * weight of number of holes
+	 * weight of total weight of holes
+	 * weight of sum of adjacent column height difference
+	 * weight of landing height
+	 * weight of total height
+	 * weight of range of height
+	 */
+	private double[] weights;
+	
+	public Particle(double[] initialWeights) {
+		this.setWeights(initialWeights);
+	}
+
+	public double[] getWeights() {
+		return weights;
+	}
+
+	public void setWeights(double[] weights) {
+		this.weights = weights;
+	}
+}
+
 class Heuristics {
 	private int lineCleared;
 	
-	private double weightOfLineCleared;
-	
 	private int numberOfHoles;
-	
-	private double weightOfNumberOfHoles;
 	
 	private int totalWeightOfHoles;
 	
-	private double weightOfTotalWeightOfHoles;
-	
 	private int sumOfAdjacentColumnHeightDifference;
 	
-	private double weightOfSumOfAdjacentColumnHeightDifference;
-	
-	private int landingHeight;
-	
-	private double weightOfLandingHeight;
+	private int landingHeight; //The row number of the lowest unoccupied cell that a shape placement will occupy
 	
 	private int totalHeight;
 	
-	private double weightOfTotalHeight;
-	
 	private int rangeOfHeight;
-	
-	private double weightOfRangeOfHeight;
 	
 	
 	public Heuristics(State thisState, State nextState) {
@@ -66,7 +82,7 @@ class Heuristics {
 			for(int row = nextState.getTop()[column]-1; row >= 0; row--) {
 				if(nextState.getField()[row][column] == 0){
 					this.numberOfHoles++;
-					this.totalWeightOfHoles += (20 - row);
+					this.totalWeightOfHoles += (State.ROWS - 1 - row);
 				}
 			}
 		}	
@@ -75,13 +91,13 @@ class Heuristics {
 		for(int column = 1; column < State.COLS; column++) {
 			this.sumOfAdjacentColumnHeightDifference += Math.abs(nextState.getTop()[column]-nextState.getTop()[column-1]);
 		}
+
 		
-		//the height of bottom gird 
-		this.landingHeight = State.ROWS;
+		this.landingHeight = State.ROWS - 1;
 		for(int column = 0; column < State.COLS; column++) {
 			if(thisState.getTop()[column] != nextState.getTop()[column]) {
 				if(nextState.getTop()[column] - 1 < this.landingHeight) {
-					this.landingHeight = nextState.getTop()[column];
+					//TODO
 				}
 			}
 		}
@@ -92,26 +108,16 @@ class Heuristics {
 		}
 		
 		this.rangeOfHeight = Arrays.stream(nextState.getTop()).max().getAsInt() -  Arrays.stream(nextState.getTop()).min().getAsInt();
-}
-	
-	public void initializeWeight() {
-		this.weightOfLineCleared = 0.5;
-		this.weightOfNumberOfHoles = 0.5;
-		this.weightOfTotalWeightOfHoles = 0.5;
-		this.weightOfSumOfAdjacentColumnHeightDifference = 0.5;
-		this.weightOfLandingHeight = 0.5;
-		this.weightOfTotalHeight = 0.5;
-		this.weightOfRangeOfHeight = 0.5;
 	}
 	
-	public double getTotalHeuristic() {
-		return 1.0 * (lineCleared * weightOfLineCleared
-				+ numberOfHoles * weightOfNumberOfHoles
-				+ totalWeightOfHoles * weightOfTotalWeightOfHoles
-				+ sumOfAdjacentColumnHeightDifference * weightOfSumOfAdjacentColumnHeightDifference
-				+ landingHeight * weightOfLandingHeight
-				+ totalHeight * weightOfTotalHeight
-				+ rangeOfHeight * weightOfRangeOfHeight);
+	public double getTotalHeuristic(Particle p) {
+		return 1.0 * (lineCleared * p.getWeights()[0]
+				+ numberOfHoles *  p.getWeights()[1]
+				+ totalWeightOfHoles *  p.getWeights()[2]
+				+ sumOfAdjacentColumnHeightDifference *  p.getWeights()[3]
+				+ landingHeight *  p.getWeights()[4]
+				+ totalHeight *  p.getWeights()[5]
+				+ rangeOfHeight *  p.getWeights()[6]);
 	}
 	
 	public int getLineCleared() {
@@ -120,14 +126,6 @@ class Heuristics {
 	
 	public void setLineCleared(int lineCleared) {
 		this.lineCleared = lineCleared;
-	}
-	
-	public double getWeightOfLineCleared() {
-		return weightOfLineCleared;
-	}
-
-	public void setWeightOfLineCleared(double weightOfLineCleared) {
-		this.weightOfLineCleared = weightOfLineCleared;
 	}
 
 	public int getNumberOfHoles() {
@@ -138,28 +136,12 @@ class Heuristics {
 		this.numberOfHoles = numberOfHoles;
 	}
 
-	public double getWeightOfNumberOfHoles() {
-		return weightOfNumberOfHoles;
-	}
-
-	public void setWeightOfNumberOfHoles(double weightOfNumberOfHoles) {
-		this.weightOfNumberOfHoles = weightOfNumberOfHoles;
-	}
-
 	public int getTotalHeightOfHoles() {
 		return totalWeightOfHoles;
 	}
 
 	public void setTotalHeightOfHoles(int totalWeightOfHoles) {
 		this.totalWeightOfHoles = totalWeightOfHoles;
-	}
-
-	public double getWeightsOfTotalWeightOfHoles() {
-		return weightOfTotalWeightOfHoles;
-	}
-
-	public void setWeightsOfTotalHeightOfHoles(double weightOfTotalWeightOfHoles) {
-		this.weightOfTotalWeightOfHoles = weightOfTotalWeightOfHoles;
 	}
 
 	public int getSumOfAdjacentColumnHeightDifference() {
@@ -170,28 +152,12 @@ class Heuristics {
 		this.sumOfAdjacentColumnHeightDifference = sumOfAdjacentColumnHeightDifference;
 	}
 
-	public double getWeightOfSumOfAdjacentColumnHeightDifference() {
-		return weightOfSumOfAdjacentColumnHeightDifference;
-	}
-
-	public void setWeightOfSumOfAdjacentColumnHeightDifference(double weightOfSumOfAdjacentColumnHeightDifference) {
-		this.weightOfSumOfAdjacentColumnHeightDifference = weightOfSumOfAdjacentColumnHeightDifference;
-	}
-
 	public int getLandingHeight() {
 		return landingHeight;
 	}
 
 	public void setLandingHeight(int landingHeight) {
 		this.landingHeight = landingHeight;
-	}
-
-	public double getWeightOfLandingHeight() {
-		return weightOfLandingHeight;
-	}
-
-	public void setWeightOfLandingHeight(double weightOfLandingHeight) {
-		this.weightOfLandingHeight = weightOfLandingHeight;
 	}
 
 	public int getTotalHeight() {
@@ -201,15 +167,7 @@ class Heuristics {
 	public void setTotalHeight(int totalHeight) {
 		this.totalHeight = totalHeight;
 	}
-
-	public double getWeightOfTotalHeight() {
-		return weightOfTotalHeight;
-	}
-
-	public void setWeightOfTotalHeight(double weightOfTotalHeight) {
-		this.weightOfTotalHeight = weightOfTotalHeight;
-	}
-
+	
 	public int getRangeOfHeight() {
 		return rangeOfHeight;
 	}
@@ -217,13 +175,4 @@ class Heuristics {
 	public void setRangeOfHeight(int rangeOfHeight) {
 		this.rangeOfHeight = rangeOfHeight;
 	}
-
-	public double getWeightOfRangeOfHeight() {
-		return weightOfRangeOfHeight;
-	}
-
-	public void setWeightOfRangeOfHeight(double weightOfRangeOfHeight) {
-		this.weightOfRangeOfHeight = weightOfRangeOfHeight;
-	}
-	
 }
