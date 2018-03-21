@@ -27,7 +27,7 @@ public class PlayerSkeleton {
 	
 }
 
-class Heuristics{
+class Heuristics {
 	private int lineCleared;
 	
 	private double weightOfLineCleared;
