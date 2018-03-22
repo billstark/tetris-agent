@@ -3,10 +3,10 @@ import java.util.Random;
 
 public class PlayerSkeleton {
 	
-	public final static double INERTIA_WEIGHT = 0.72;		//inertia weight
-	public final static double COGNITIVE_TERM = 1.42;	 	//cognitive term
-	public final static double SOCIAL_TERM = 1.42;	 	//social term
-	public final static double MAX_VELOCITY = 0.5; 		//velocity max
+	public final static double INERTIA_WEIGHT = 0.72;		
+	public final static double COGNITIVE_TERM = 1.42;	 	
+	public final static double SOCIAL_TERM = 1.42;	 	
+	public final static double MAX_VELOCITY = 0.5; 		
 	
 	//implement this function to have a working system
 	public int pickMove(State s, int[][] legalMoves) {
