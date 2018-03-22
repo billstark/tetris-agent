@@ -1,12 +1,7 @@
 import java.util.Arrays;
 import java.util.Random;
 
-public class PlayerSkeleton {
-	
-	public final static double INERTIA_WEIGHT = 0.72;		
-	public final static double COGNITIVE_TERM = 1.42;	 	
-	public final static double SOCIAL_TERM = 1.42;	 	
-	public final static double MAX_VELOCITY = 0.5; 		
+public class PlayerSkeleton {	
 	
 	//implement this function to have a working system
 	public int pickMove(State s, int[][] legalMoves) {
@@ -33,7 +28,7 @@ public class PlayerSkeleton {
 	
 }
 
-class Particle {
+class Particle {	
 	/*
 	 * The position is the weight in the heuristic
 	 * weight of line cleared
@@ -46,6 +41,11 @@ class Particle {
 	 */
 	private double[] position; 
 	private double[] velocity;
+	
+	private final double INERTIA_WEIGHT = 0.72;		
+	private final double COGNITIVE_TERM = 1.42;	 	
+	private final double SOCIAL_TERM = 1.42;	 	
+	private final double MAX_VELOCITY = 0.5; 
 	
 	public Particle(double[] initialPosition, double[] initialVelocity) {
 		setPosition(initialPosition);
@@ -72,9 +72,9 @@ class Particle {
 		Random r = new Random();
 		
 		for(int i=0;i<position.length;i++){
-			velocity[i] = velocity[i] * PlayerSkeleton.INERTIA_WEIGHT 
-					+ PlayerSkeleton.COGNITIVE_TERM * r.nextDouble() * (bestIndividualPostion[i] - position[i])
-					+ PlayerSkeleton.SOCIAL_TERM * r.nextDouble() * (bestSwarmPosition[i] - position[i]);
+			velocity[i] = velocity[i] * INERTIA_WEIGHT 
+					+ COGNITIVE_TERM * r.nextDouble() * (bestIndividualPostion[i] - position[i])
+					+ SOCIAL_TERM * r.nextDouble() * (bestSwarmPosition[i] - position[i]);
 			
 			position[i] += velocity[i];
 		}
