@@ -28,60 +28,6 @@ public class PlayerSkeleton {
 	
 }
 
-class Particle {	
-	/*
-	 * The position is the weight in the heuristic
-	 * weight of line cleared
-	 * weight of number of holes
-	 * weight of total weight of holes
-	 * weight of sum of adjacent column height difference
-	 * weight of landing height
-	 * weight of total height
-	 * weight of range of height
-	 */
-	private double[] position; 
-	private double[] velocity;
-	
-	private final double INERTIA_WEIGHT = 0.72;		
-	private final double COGNITIVE_TERM = 1.42;	 	
-	private final double SOCIAL_TERM = 1.42;	 	
-	private final double MAX_VELOCITY = 0.5; 
-	
-	public Particle(double[] initialPosition, double[] initialVelocity) {
-		setPosition(initialPosition);
-		setVelocity(initialVelocity);
-	}
-
-	public double[] getPosition() {
-		return position;
-	}
-
-	public void setPosition(double[] position) {
-		this.position = position;
-	}
-
-	public double[] getVelocity() {
-		return velocity;
-	}
-
-	public void setVelocity(double[] velocity) {
-		this.velocity = velocity;
-	}
-	
-	public void updateVelocityAndPosition(double[] bestIndividualPostion, double[] bestSwarmPosition){
-		Random r = new Random();
-		
-		for(int i=0;i<position.length;i++){
-			velocity[i] = velocity[i] * INERTIA_WEIGHT 
-					+ COGNITIVE_TERM * r.nextDouble() * (bestIndividualPostion[i] - position[i])
-					+ SOCIAL_TERM * r.nextDouble() * (bestSwarmPosition[i] - position[i]);
-			
-			position[i] += velocity[i];
-		}
-	}
-	
-}
-
 class Heuristics {
 	private int lineCleared;
 	
