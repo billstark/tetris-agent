@@ -13,14 +13,16 @@ class Particle {
 	 * weight of range of height
 	 */
 	public static final int POPULATION_SIZE = 25;
-			
-	private final int NUM_OF_ATTRIBUTES = 7;
+	public static final int NUM_OF_ATTRIBUTES = 7;
+	
 	private final double SCALE_FACTOR = 0.75;
 	private final Random R_GENERATOR = new Random();
 			
 	private double[] position;
 	private double[] bestPosition;
 	private double[] velocity;
+	
+	public int id;
 	
 	// Stores the "neighbors" of the current particle
 	private ArrayList<Integer> neighbors;
@@ -33,7 +35,7 @@ class Particle {
 	private final double INERTIA_WEIGHT = 0.72;		
 	private final double COGNITIVE_TERM = 1.42;	 	
 	private final double SOCIAL_TERM = 1.42;	 	
-	private final double VELOCITY_BOUND = 0.5; 
+	private final double VELOCITY_BOUND = 0.5;
 	
 	/**
 	 * Constructor of the particle.
@@ -46,6 +48,7 @@ class Particle {
 		initializeNeighbours(id);
 		initializePosition(initialPosition);
 		initializeVelocity();
+		this.id = id;
 	}
 	
 	/**
@@ -56,6 +59,7 @@ class Particle {
 	 * @param id the id of the current particle
 	 */
 	private void initializeNeighbours(int id) {
+		neighbors = new ArrayList<Integer>();
 		int edgeLength = (int) Math.sqrt(POPULATION_SIZE);
 		if (id >= edgeLength) { neighbors.add(id - edgeLength); }
 		if ((id + 1) % edgeLength != 0) { neighbors.add(id + 1); }
@@ -127,11 +131,13 @@ class Particle {
 	 * best position for this particle
 	 * 
 	 * @param newFitness
+	 * @return the best fitness of the current particle
 	 */
-	public void updateFitness(double newFitness) {
-		if (newFitness <= fitness) { return; }
+	public double updateFitness(double newFitness) {
+		if (newFitness <= fitness) { return fitness; }
 		fitness = newFitness;
 		bestPosition = position.clone();
+		return fitness;
 	}
 	
 	/**
