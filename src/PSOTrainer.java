@@ -26,7 +26,11 @@ public class PSOTrainer {
 		PSOTrainer trainer = new PSOTrainer();
 //		trainer.initializeParticles();
 		trainer.initializeParticlesFromPreviousResult();
+		
+		long startTime = System.currentTimeMillis();
 		trainer.start();
+		long endTime = System.currentTimeMillis();
+		System.out.println(endTime - startTime);
 	}
 	
 	/**
