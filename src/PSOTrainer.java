@@ -1,3 +1,5 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.Random;
 
@@ -22,7 +24,8 @@ public class PSOTrainer {
 
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
-		trainer.initializeParticles();
+//		trainer.initializeParticles();
+		trainer.initializeParticlesFromPreviousResult();
 		trainer.start();
 	}
 	
@@ -58,6 +61,31 @@ public class PSOTrainer {
 				writer.println(String.join(" ", positionString));
 			}
 			writer.close();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	private void initializeParticlesFromPreviousResult() {
+		particles = new Particle[Particle.POPULATION_SIZE];
+		fitnesses = new double[Particle.POPULATION_SIZE];
+		linesCleared = new long[Particle.POPULATION_SIZE];
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(OUTPUT_FILE_NAME));
+			String line = br.readLine();
+			int index = 0;
+			while (line != null) {
+				String[] weightString = line.split(" ");
+				double[] position = new double[Particle.NUM_OF_ATTRIBUTES];
+				for (int i = 0; i < position.length; i++) {
+					position[i] = Double.parseDouble(weightString[i]);
+				}
+				particles[index] = new Particle(position, index);
+				linesCleared[index] = 0;
+				line = br.readLine();
+				index++;
+			}
+			br.close();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
