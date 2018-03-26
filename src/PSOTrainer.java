@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class PSOTrainer {
 	
-	private final int NUM_OF_ITERATIONS = 1000;
+	private final int NUM_OF_ITERATIONS = 500;
 	private final String INPUT_FILE_NAME = "particles-input.txt";
 	private final String OUTPUT_FILE_NAME = "particles-output.txt";
 	
@@ -24,8 +24,8 @@ public class PSOTrainer {
 
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
-//		trainer.initializeParticles();
-		trainer.initializeParticlesFromPreviousResult();
+		trainer.initializeParticles();
+//		trainer.initializeParticlesFromPreviousResult();
 		
 		long startTime = System.currentTimeMillis();
 		trainer.start();
@@ -101,7 +101,7 @@ public class PSOTrainer {
 	private void start() {
 		for (int i = 0; i < NUM_OF_ITERATIONS; i++) {
 			System.out.println("Running iteration " + i);
-			runAnIteration();
+			runAnIteration(i);
 			updatePositions();
 		}
 		writeWeightsToFile();
@@ -115,13 +115,16 @@ public class PSOTrainer {
 	 * 3. update the fitness of the current position of the particle.
 	 * Note: particle update will return its current individual best fitness. 
 	 */
-	private void runAnIteration() {
+	private void runAnIteration(int interation) {
 		for (int i = 0; i < particles.length; i++) {
 			ParticlePlayer player = new ParticlePlayer(particles[i]);
 			player.play();
-			double fitness = player.fundamentalFitnessEvaluation();
+			double fitness = player.thirdfitnessEvaluation();
 			fitnesses[i] = particles[i].updateFitness(fitness);
-			linesCleared[i] = Math.max(linesCleared[i], player.getLinesCleared());
+			
+			//the result of each player
+			if(interation == NUM_OF_ITERATIONS-1)
+				linesCleared[i] =  player.getLinesCleared();
 		}
 	}
 	

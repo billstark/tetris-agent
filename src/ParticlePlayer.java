@@ -9,6 +9,13 @@ public class ParticlePlayer {
 	
 	private long linesCleared;
 	
+	//parameters for fitness
+		private long totalHeight;
+		private double averageHeight;
+		private long totalHole;
+		private double averageHole;
+		private long round;
+	
 	/**
 	 * Constructor, takes in a particle
 	 * @param particle
@@ -17,6 +24,13 @@ public class ParticlePlayer {
 		this.particle = particle;
 		this.state = new State();
 		this.linesCleared = 0;
+		
+		this.totalHeight = 0;
+		this.averageHeight = 0;
+		this.totalHole = 0;
+		this.averageHole = 0;
+		this.round = 0;
+		
 //		new TFrame(this.state);
 	}
 	
@@ -67,6 +81,7 @@ public class ParticlePlayer {
 			
 			// lets the state to make the best move.
 			state.makeMove(bestMove);
+			updateParametersForFitness();
 		}
 		
 		linesCleared = state.getRowsCleared(); 
@@ -231,4 +246,27 @@ public class ParticlePlayer {
 		return linesCleared;
 	}
 	
+	public double thirdfitnessEvaluation() {
+		return state.getRowsCleared()
+				+ 1.0*(totalHeight - averageHeight) / totalHeight * 500
+				+ 1.0*(totalHole - averageHole) / totalHole * 500;
+	}
+	
+	private void updateParametersForFitness() {
+		round++;
+		
+		int currentTotalHeight = 0;
+		int currentHole = 0;
+		for(int i = 0; i < State.COLS; i++) {
+			currentTotalHeight += state.getTop()[i];
+			for(int j=state.getTop()[i]; j >= 0 ; j--) {
+				if(state.getField()[j][i] == 0) currentHole++;
+			}
+		}
+		
+		totalHeight += currentTotalHeight;
+		totalHole += currentHole;
+		averageHeight = 1.0*totalHeight/round;
+		averageHole = 1.0*totalHole/round;
+	}
 }
