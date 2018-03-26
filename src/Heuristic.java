@@ -66,7 +66,7 @@ class Heuristic {
 				+ rangeOfHeight *  p.getPosition()[6]);
 	}
 
-	public double getTotalHeuristic(int[] weight) {
+	public double getTotalHeuristic(double[] weight) {
 		return 1.0 * (lineCleared * weight[0]
 				+ numberOfHoles * weight[1]
 				+ totalWeightOfHoles * weight[2]
