@@ -1,6 +1,6 @@
 public class GAConfig {
     // Population of parameter vectors
-    public static final int POPULATION = 1000;
+    public static final int POPULATION_SIZE = 1000;
     
     // Number of games run in each iteration
     public static final int NUM_GAMES_IN_ITERATION = 100;
@@ -19,4 +19,6 @@ public class GAConfig {
     
     // Maximum amount of mutation for a component in the vector to be mutated  
     public static final double MUTATION_AMOUNT_MAX = 0.2;
+    
+    public static final String OUTPUT_FILE_NAME = "GA_output.txt";
 }
