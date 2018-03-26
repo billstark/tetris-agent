@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class GATrainerUtils {
     public static GAParameterVector[] createInitialVectorPopulation() {
@@ -30,5 +31,21 @@ public class GATrainerUtils {
             System.out.println(e.getMessage());
         }
         return population;
+    }
+    
+    public static void writeToOutput(GAParameterVector[] vectors) {
+        try {
+            PrintWriter writer = new PrintWriter(GAConfig.OUTPUT_FILE_NAME, GAConfig.ENCODING_FORM);
+            for (int i = 0; i < vectors.length; i++) {
+                GAParameterVector vector = vectors[i];
+                double[] weight = vector.weight;
+                String[] weightsString = new String[weight.length];
+                for (int j = 0; j < weight.length; j++) { weightsString[j] = Double.toString(weight[j]); }
+                writer.println(String.join(" ", weightsString) + " " + vector.fitness);
+            }
+            writer.close();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

@@ -21,10 +21,10 @@ public class GAPlayer {
     /**
      * The function that executes a game play
      */
-    public void play() {
+    public void play(int maxTurn) {
         
         // Loop until the game is not lost
-        while (!state.lost) {
+        while (!state.lost && (maxTurn <= 0 || state.getTurnNumber() < maxTurn)) {
             
             // Some dumb value for initial best move
             int bestMove = -1;
