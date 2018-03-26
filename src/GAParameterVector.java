@@ -3,7 +3,7 @@ import java.util.Random;
 public class GAParameterVector {
     private final Random R_GENERATOR = new Random();
 
-    private double[] weight = new double[7];
+    public double[] weight = new double[7];
 
     /**
      * Randomly initialize weight.
