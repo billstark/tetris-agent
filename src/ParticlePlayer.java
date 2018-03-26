@@ -47,12 +47,10 @@ public class ParticlePlayer {
 				// Have a copy of the current top
 				int[] currentTop = state.getTop().clone();
 				
-				// Test this move (maybe later can change `Heuristic` to a static class)
-//				state.clearNext();
-//				state.drawNext(slot, orientation);
-				int linesCleared = testMove(orientation, slot, state.getNextPiece(), currentBoard, currentTop);
-				if (linesCleared < 0) { continue; }
-				Heuristic stateEvaluator = new Heuristic(currentBoard, state.getTop(), currentTop, linesCleared);
+				// Test this move (maybe later can change `Heuristic` to a static class)				
+				int testCleared = testMove(orientation, slot, state.getNextPiece(), currentBoard, currentTop);
+				if (testCleared < 0) { continue; }
+				Heuristic stateEvaluator = new Heuristic(currentBoard, state.getTop(), currentTop, testCleared);
 				double score = stateEvaluator.getTotalHeuristic(particle);
 				
 				// Updates best score and best move
@@ -69,20 +67,9 @@ public class ParticlePlayer {
 			
 			// lets the state to make the best move.
 			state.makeMove(bestMove);
-			
-//
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
 		}
 		
-		
-//		state.draw();
-//		state.clearNext();
-//		state.drawNext(0, 0);
-		this.linesCleared = state.getRowsCleared();
+		linesCleared = state.getRowsCleared(); 
 	}
 	
 	/**
