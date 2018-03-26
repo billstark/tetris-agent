@@ -17,7 +17,7 @@ public class ParticlePlayer {
 		this.particle = particle;
 		this.state = new State();
 		this.linesCleared = 0;
-		new TFrame(this.state);
+//		new TFrame(this.state);
 	}
 	
 	/**
@@ -51,6 +51,7 @@ public class ParticlePlayer {
 //				state.clearNext();
 //				state.drawNext(slot, orientation);
 				int linesCleared = testMove(orientation, slot, state.getNextPiece(), currentBoard, currentTop);
+				if (linesCleared < 0) { continue; }
 				Heuristic stateEvaluator = new Heuristic(currentBoard, state.getTop(), currentTop, linesCleared);
 				double score = stateEvaluator.getTotalHeuristic(particle);
 				
@@ -61,9 +62,14 @@ public class ParticlePlayer {
 				}
 			}
 			
+			if (bestMove == -1) { 
+				state.makeMove(0);
+				continue;
+			}
+			
 			// lets the state to make the best move.
 			state.makeMove(bestMove);
-//			state.draw();
+			
 //
 //			try {
 //				Thread.sleep(1000);
@@ -71,6 +77,11 @@ public class ParticlePlayer {
 //				e.printStackTrace();
 //			}
 		}
+		
+		
+//		state.draw();
+//		state.clearNext();
+//		state.drawNext(0, 0);
 		this.linesCleared = state.getRowsCleared();
 	}
 	
@@ -136,18 +147,18 @@ public class ParticlePlayer {
 		int count = 0;
 		
 		// For each column
-		for (int i = 0; i < board.length; i++) {
+		for (int i = 0; i < State.COLS; i++) {
 			
 			// For each position in the column
-			for (int j = 0; j < board[i].length - 1; j++) {
+			for (int j = 0; j < State.ROWS - 1; j++) {
 				
 				// If it is not 0, just continue
-				if (board[i][j] != 0) { continue; }
+				if (board[j][i] != 0) { continue; }
 				
 				// If it is 0, and there exists some block above
 				// increase the count
-				for (int k = j + 1; k < board[i].length; k++) {
-					if (board[i][j] == 0 && board[i][k] != 0) {
+				for (int k = j + 1; k < State.ROWS; k++) {
+					if (board[j][i] == 0 && board[k][i] != 0) {
 						count++;
 						break;
 					}
