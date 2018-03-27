@@ -1,6 +1,9 @@
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class GATrainer {
@@ -38,12 +41,15 @@ public class GATrainer {
                     long iterations_completed = i + (current_round * population_size);
                     double completion_percentage = iterations_completed * 1.0 / total_rounds;
                     double minutes_elapsed = time_diff * 1.0 / 1000 / 60;
+                    double minutes_to_go = minutes_elapsed / completion_percentage - minutes_elapsed;
+                    Date date = new Date((long) (minutes_to_go * 1000 * 60 + current_time));
+                    DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
                     System.out.println();
-                    System.out.println("-------------------------");
+                    System.out.println("--------------------------------------------------");
                     System.out.println((completion_percentage * 100) + "% complete");
-                    System.out.println(minutes_elapsed + " minutes elapsed");
-                    System.out.println((minutes_elapsed / completion_percentage - minutes_elapsed) + " minutes to go.");
-                    System.out.println("-------------------------");
+                    System.out.println(minutes_elapsed + " minutes elapsed, " + minutes_to_go + " minutes to go.");
+                    System.out.println("Estimated finish time: " + formatter.format(date));
+                    System.out.println("--------------------------------------------------");
                 }
             }
             runIteration(i);
