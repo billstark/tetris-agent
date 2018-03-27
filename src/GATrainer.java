@@ -33,16 +33,18 @@ public class GATrainer {
         for (int i = 0; i < population_size; i++) {
             if (i % (population_size / 10) == 0) {
                 long current_time = System.currentTimeMillis();
-                long time_diff = GATrainer.startTime - current_time;
-                long iterations_completed = i + (current_round * population_size);
-                double completion_percentage = iterations_completed * 1.0 / total_rounds;
-                double minutes_elapsed = time_diff * 1.0 / 1000 / 60;
-                System.out.println();
-                System.out.println("-------------------------");
-                System.out.println((completion_percentage * 100) + "% complete");
-                System.out.println(minutes_elapsed + " minutes elapsed");
-                System.out.println((minutes_elapsed / completion_percentage - minutes_elapsed) + " minutes to go.");
-                System.out.println("-------------------------");
+                long time_diff = current_time - GATrainer.startTime;
+                if (time_diff > 0.1) {
+                    long iterations_completed = i + (current_round * population_size);
+                    double completion_percentage = iterations_completed * 1.0 / total_rounds;
+                    double minutes_elapsed = time_diff * 1.0 / 1000 / 60;
+                    System.out.println();
+                    System.out.println("-------------------------");
+                    System.out.println((completion_percentage * 100) + "% complete");
+                    System.out.println(minutes_elapsed + " minutes elapsed");
+                    System.out.println((minutes_elapsed / completion_percentage - minutes_elapsed) + " minutes to go.");
+                    System.out.println("-------------------------");
+                }
             }
             runIteration(i);
         }
