@@ -37,13 +37,13 @@ public class GATrainer {
             if (i % (population_size / 10) == 0) {
                 long current_time = System.currentTimeMillis();
                 long time_diff = current_time - GATrainer.startTime;
-                if (time_diff > 0.1) {
+                if (time_diff > 1000) {
                     long iterations_completed = i + (current_round * population_size);
                     double completion_percentage = iterations_completed * 1.0 / total_rounds;
                     double minutes_elapsed = time_diff * 1.0 / 1000 / 60;
                     double minutes_to_go = minutes_elapsed / completion_percentage - minutes_elapsed;
                     Date date = new Date((long) (minutes_to_go * 1000 * 60 + current_time));
-                    DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+                    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     System.out.println();
                     System.out.println("--------------------------------------------------");
                     System.out.println((completion_percentage * 100) + "% complete");
