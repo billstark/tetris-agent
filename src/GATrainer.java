@@ -8,7 +8,7 @@ public class GATrainer {
     
     
     public static void main(String[] args) {
-        int num_rounds = 15;
+        int num_rounds = 1;
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < num_rounds; i++) {
             GATrainer trainer = new GATrainer();
@@ -16,6 +16,7 @@ public class GATrainer {
             trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
             trainer.start();
         }
+        
         long endTime = System.currentTimeMillis();
         System.out.println("Training time: " + (endTime - startTime) / 1000 + " seconds, " + num_rounds + " round(s) finished.");
     }
@@ -83,7 +84,7 @@ public class GATrainer {
         }
         
         // Write to output
-        GATrainerUtils.writeToOutput(vectorPopulation);
+        GATrainerUtils.writeToOutput(new_population);
         
         // Test best parent's fitness
         GAPlayer player = new GAPlayer(vectorPopulation[population_size-1]);
