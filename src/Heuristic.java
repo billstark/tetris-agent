@@ -59,11 +59,22 @@ class Heuristic {
 	public double getTotalHeuristic(Particle p) {
 		return 1.0 * (lineCleared * p.getPosition()[0]
 				+ numberOfHoles *  p.getPosition()[1]
-				+ totalWeightOfHoles *  p.getPosition()[2]
+				+ totalWeightOfHoles *  p.getPosition()[2] * 0.5
 				+ sumOfAdjacentColumnHeightDifference *  p.getPosition()[3]
 				+ landingHeight *  p.getPosition()[4]
 				+ totalHeight *  p.getPosition()[5]
 				+ rangeOfHeight *  p.getPosition()[6]);
+	}
+
+
+	public double getTotalHeuristic(double[] weight) {
+		return 1.0 * (lineCleared * weight[0]
+				+ numberOfHoles *  weight[1]
+				+ totalWeightOfHoles *  weight[2] * 0.5
+				+ sumOfAdjacentColumnHeightDifference *  weight[3]
+				+ landingHeight *  weight[4]
+				+ totalHeight * weight[5]
+				+ rangeOfHeight *  weight[6]);
 	}
 	
 	public int getLineCleared() {

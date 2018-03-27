@@ -26,9 +26,10 @@ public class PSOTrainer {
 
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
+
 //		trainer.initializeParticles();
 		trainer.initializeParticlesFromPreviousResult();
-		
+
 		long startTime = System.currentTimeMillis();
 		trainer.start();
 		long endTime = System.currentTimeMillis();
@@ -105,7 +106,7 @@ public class PSOTrainer {
 	private void start() {
 		for (int i = 0; i < NUM_OF_ITERATIONS; i++) {
 			System.out.println("Running iteration " + i);
-			runAnIteration(i);
+			runAnIteration();
 			updatePositions();
 		}
 		writeWeightsToFile();
@@ -119,7 +120,7 @@ public class PSOTrainer {
 	 * 3. update the fitness of the current position of the particle.
 	 * Note: particle update will return its current individual best fitness. 
 	 */
-	private void runAnIteration(int interation) {
+	private void runAnIteration() {
 		for (int i = 0; i < particles.length; i++) {
 			ParticlePlayer player = new ParticlePlayer(particles[i]);
 			player.play();
@@ -128,7 +129,7 @@ public class PSOTrainer {
 
 			if(bestLinesCleared[i] < player.getLinesCleared()){
 				bestLinesCleared[i] = player.getLinesCleared();
-				bestWeight[i] = player.getParticlePostion();
+				bestWeight[i] = player.getParticlePostion().clone();
 			}
 		}
 	}
