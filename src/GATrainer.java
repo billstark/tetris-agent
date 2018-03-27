@@ -8,9 +8,10 @@ public class GATrainer {
     
     
     public static void main(String[] args) {
-        int num_rounds = 1;
+        int num_rounds = 5;
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < num_rounds; i++) {
+            System.out.println("Iteration " + i);
             GATrainer trainer = new GATrainer();
 //            trainer.vectorPopulation = GATrainerUtils.createInitialVectorPopulation();
             trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
@@ -29,7 +30,6 @@ public class GATrainer {
         
         // Run an iteration for every vector
         for (int i = 0; i < population_size; i++) {
-            System.out.println("Iteration of vector " + i);
             runIteration(i);
         }
         
