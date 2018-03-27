@@ -20,7 +20,9 @@ public class PSOTrainer {
 	// An array that is to store the best fitness for each particle
 	private double[] fitnesses;
 
-	private long[] linesCleared;
+	//The output is 25 best games of all the iterations
+	private long[] bestLinesCleared;
+	private double[][] bestWeight;
 
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
@@ -43,7 +45,9 @@ public class PSOTrainer {
 			// Initializes particles and fitness array
 			particles = new Particle[Particle.POPULATION_SIZE];
 			fitnesses = new double[Particle.POPULATION_SIZE];
-			linesCleared = new long[Particle.POPULATION_SIZE];
+
+			bestLinesCleared = new long[Particle.POPULATION_SIZE];
+			bestWeight = new double[Particle.POPULATION_SIZE][Particle.NUM_OF_ATTRIBUTES];
 
 			for (int i = 0; i < Particle.POPULATION_SIZE; i++) {
 
@@ -58,7 +62,8 @@ public class PSOTrainer {
 				// Create new particles
 				String[] positionString = new String[position.length];
 				particles[i] = new Particle(position, i);
-				linesCleared[i] = 0;
+
+				bestLinesCleared[i] = 0;
 
 				// Writes the initial value
 				for (int j = 0; j < positionString.length; j++) { positionString[j] = Double.toString(position[j]); }
@@ -73,7 +78,8 @@ public class PSOTrainer {
 	private void initializeParticlesFromPreviousResult() {
 		particles = new Particle[Particle.POPULATION_SIZE];
 		fitnesses = new double[Particle.POPULATION_SIZE];
-		linesCleared = new long[Particle.POPULATION_SIZE];
+		bestLinesCleared = new long[Particle.POPULATION_SIZE];
+		bestWeight = new double[Particle.POPULATION_SIZE][Particle.NUM_OF_ATTRIBUTES];
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(OUTPUT_FILE_NAME));
 			String line = br.readLine();
@@ -85,7 +91,7 @@ public class PSOTrainer {
 					position[i] = Double.parseDouble(weightString[i]);
 				}
 				particles[index] = new Particle(position, index);
-				linesCleared[index] = 0;
+				bestLinesCleared[index] = 0;
 				line = br.readLine();
 				index++;
 			}
@@ -101,7 +107,7 @@ public class PSOTrainer {
 	private void start() {
 		for (int i = 0; i < NUM_OF_ITERATIONS; i++) {
 			System.out.println("Running iteration " + i);
-			runAnIteration();
+			runAnIteration(i);
 			updatePositions();
 		}
 		writeWeightsToFile();
@@ -115,13 +121,17 @@ public class PSOTrainer {
 	 * 3. update the fitness of the current position of the particle.
 	 * Note: particle update will return its current individual best fitness.
 	 */
-	private void runAnIteration() {
+	private void runAnIteration(int interation) {
 		for (int i = 0; i < particles.length; i++) {
 			ParticlePlayer player = new ParticlePlayer(particles[i]);
 			player.play();
-			double fitness = player.fundamentalFitnessEvaluation();
+			double fitness = player.thirdfitnessEvaluation();
 			fitnesses[i] = particles[i].updateFitness(fitness);
-			linesCleared[i] = Math.max(linesCleared[i], player.getLinesCleared());
+
+			if(bestLinesCleared[i] < player.getLinesCleared()){
+				bestLinesCleared[i] = player.getLinesCleared();
+				bestWeight[i] = player.getParticlePostion();
+			}
 		}
 	}
 
@@ -134,11 +144,14 @@ public class PSOTrainer {
 			PrintWriter writer = new PrintWriter(OUTPUT_FILE_NAME, ENCODING_FORM);
 
 			for (int i = 0; i < particles.length; i++) {
-				Particle particle = particles[i];
-				double[] weights = particle.getPosition();
-				String[] weightsString = new String[weights.length];
-				for (int j = 0; j < weights.length; j++) { weightsString[j] = Double.toString(weights[j]); }
-				writer.println(String.join(" ", weightsString) + " " + linesCleared[i]);
+//				Particle particle = particles[i];
+//				double[] weights = particle.getPosition();
+//				String[] weightsString = new String[weights.length];
+//				for (int j = 0; j < weights.length; j++) { weightsString[j] = Double.toString(weights[j]); }
+				String[] weighString = new String[bestWeight[i].length];
+				for(int j = 0; j < bestWeight[i].length;j++)
+					weighString[j] = Double.toString(bestWeight[i][j]);
+				writer.println(String.join(" ", weighString) + " " + bestLinesCleared[i]);
 			}
 
 			writer.close();
@@ -182,5 +195,4 @@ public class PSOTrainer {
 			particle.updatePosition();
 		}
 	}
-
 }
