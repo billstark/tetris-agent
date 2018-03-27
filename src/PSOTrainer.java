@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class PSOTrainer {
 	
-	private final int NUM_OF_ITERATIONS = 1000;
+	private final int NUM_OF_ITERATIONS = 50000;
 	private final String INPUT_FILE_NAME = "particles-input.txt";
 	private final String OUTPUT_FILE_NAME = "particles-output.txt";
 	
@@ -21,11 +21,12 @@ public class PSOTrainer {
 	private double[] fitnesses;
 	
 	private long[] linesCleared;
+	private long[] finalLinesCleared;
 
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
-//		trainer.initializeParticles();
-		trainer.initializeParticlesFromPreviousResult();
+		trainer.initializeParticles();
+//		trainer.initializeParticlesFromPreviousResult();
 		
 		long startTime = System.currentTimeMillis();
 		trainer.start();
@@ -44,6 +45,7 @@ public class PSOTrainer {
 			particles = new Particle[Particle.POPULATION_SIZE];
 			fitnesses = new double[Particle.POPULATION_SIZE];
 			linesCleared = new long[Particle.POPULATION_SIZE];
+			finalLinesCleared = new long[Particle.POPULATION_SIZE];
 			
 			for (int i = 0; i < Particle.POPULATION_SIZE; i++) {
 				
@@ -74,6 +76,7 @@ public class PSOTrainer {
 		particles = new Particle[Particle.POPULATION_SIZE];
 		fitnesses = new double[Particle.POPULATION_SIZE];
 		linesCleared = new long[Particle.POPULATION_SIZE];
+		finalLinesCleared = new long[Particle.POPULATION_SIZE];
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(OUTPUT_FILE_NAME));
 			String line = br.readLine();
@@ -86,6 +89,7 @@ public class PSOTrainer {
 				}
 				particles[index] = new Particle(position, index);
 				linesCleared[index] = 0;
+				finalLinesCleared[index] = 0;
 				line = br.readLine();
 				index++;
 			}
@@ -119,9 +123,11 @@ public class PSOTrainer {
 		for (int i = 0; i < particles.length; i++) {
 			ParticlePlayer player = new ParticlePlayer(particles[i]);
 			player.play();
+//			double fitness = player.mediumFitnessEvaluation();
 			double fitness = player.fundamentalFitnessEvaluation();
 			fitnesses[i] = particles[i].updateFitness(fitness);
 			linesCleared[i] = Math.max(linesCleared[i], player.getLinesCleared());
+			finalLinesCleared[i] = player.getLinesCleared();
 		}
 	}
 	
@@ -138,7 +144,7 @@ public class PSOTrainer {
 				double[] weights = particle.getPosition();
 				String[] weightsString = new String[weights.length];
 				for (int j = 0; j < weights.length; j++) { weightsString[j] = Double.toString(weights[j]); }
-				writer.println(String.join(" ", weightsString) + " " + linesCleared[i]);
+				writer.println(String.join(" ", weightsString) + " " + finalLinesCleared[i]);
 			}
 			
 			writer.close();
