@@ -104,9 +104,17 @@ public class GATrainer {
 
         // Test best parent's fitness
         GAPlayer player = new GAPlayer(vectorPopulation[population_size-1]);
-        player.play(0);
-        double test_fitness = player.fundamentalFitnessEvaluation();
-        System.out.println("Test maximum fitness: " + test_fitness);
+        double best_result = 0;
+        double total_result = 0;
+        int num_test_rounds = 10;
+        for (int i = 0; i < num_test_rounds; i++) {
+            player.play(0);
+            double test_fitness = player.fundamentalFitnessEvaluation();
+            best_result = Math.max(best_result, test_fitness);
+            total_result += test_fitness;
+        }
+
+        System.out.println("Test best result: " + best_result + ", test average result in " + num_test_rounds + " rounds: " + total_result / num_test_rounds);
 
         // Average fitness
         double total_fitness = 0;
