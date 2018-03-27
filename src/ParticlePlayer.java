@@ -269,4 +269,8 @@ public class ParticlePlayer {
 		averageHeight = 1.0*totalHeight/round;
 		averageHole = 1.0*totalHole/round;
 	}
+
+	public double[] getParticlePostion(){
+		return particle.getPosition();
+	}
 }
