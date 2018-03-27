@@ -107,7 +107,7 @@ public class GATrainer {
         double best_result = 0;
         double total_result = 0;
         int num_test_rounds = 10;
-        for (int i = 0; i < num_test_rounds; i++) {
+        for (i = 0; i < num_test_rounds; i++) {
             player.play(0);
             double test_fitness = player.fundamentalFitnessEvaluation();
             best_result = Math.max(best_result, test_fitness);
