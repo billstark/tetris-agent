@@ -6,7 +6,8 @@ import java.util.Random;
 
 public class PSOTrainer {
 
-	private final int NUM_OF_ITERATIONS = 50000;	private final String INPUT_FILE_NAME = "particles-input.txt";
+	private final int NUM_OF_ITERATIONS = 100;	
+	private final String INPUT_FILE_NAME = "particles-input.txt";
 	private final String OUTPUT_FILE_NAME = "particles-output.txt";
 
 	private final String ENCODING_FORM = "UTF-8";
@@ -22,7 +23,6 @@ public class PSOTrainer {
 
 	//The output is 25 best games of all the iterations
 	private long[] bestLinesCleared;
-	private double[][] bestWeight;
 
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
@@ -46,9 +46,7 @@ public class PSOTrainer {
 			// Initializes particles and fitness array
 			particles = new Particle[Particle.POPULATION_SIZE];
 			fitnesses = new double[Particle.POPULATION_SIZE];
-
 			bestLinesCleared = new long[Particle.POPULATION_SIZE];
-			bestWeight = new double[Particle.POPULATION_SIZE][Particle.NUM_OF_ATTRIBUTES];
 
 			for (int i = 0; i < Particle.POPULATION_SIZE; i++) {
 
@@ -64,8 +62,6 @@ public class PSOTrainer {
 				String[] positionString = new String[position.length];
 				particles[i] = new Particle(position, i);
 
-				bestLinesCleared[i] = 0;
-
 				// Writes the initial value
 				for (int j = 0; j < positionString.length; j++) { positionString[j] = Double.toString(position[j]); }
 				writer.println(String.join(" ", positionString));
@@ -80,21 +76,37 @@ public class PSOTrainer {
 		particles = new Particle[Particle.POPULATION_SIZE];
 		fitnesses = new double[Particle.POPULATION_SIZE];
 		bestLinesCleared = new long[Particle.POPULATION_SIZE];
-		bestWeight = new double[Particle.POPULATION_SIZE][Particle.NUM_OF_ATTRIBUTES];
+		double[][] recordedWeights = new double[Particle.POPULATION_SIZE][Particle.NUM_OF_ATTRIBUTES];
+		double[][] recordedVelocity = new double[Particle.POPULATION_SIZE][Particle.NUM_OF_ATTRIBUTES];
+		double[] recordedNoise = new double[Particle.POPULATION_SIZE];
+		
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(OUTPUT_FILE_NAME));
-			String line = br.readLine();
-			int index = 0;
-			while (line != null) {
+			
+			for (int i = 0; i < recordedWeights.length; i++) {
+				String line = br.readLine();
+				System.out.println(line);
 				String[] weightString = line.split(" ");
-				double[] position = new double[Particle.NUM_OF_ATTRIBUTES];
-				for (int i = 0; i < position.length; i++) {
-					position[i] = Double.parseDouble(weightString[i]);
+				for (int j = 0; j < recordedWeights[i].length; j++) {
+					recordedWeights[i][j] = Double.parseDouble(weightString[j]);
 				}
-				particles[index] = new Particle(position, index);
-				bestLinesCleared[index] = 0;
-				line = br.readLine();
-				index++;
+			}
+			
+			for (int i = 0; i < recordedVelocity.length; i++) {
+				String line = br.readLine();
+				String[] velocityString = line.split(" ");
+				for (int j = 0; j < recordedVelocity[i].length; j++) {
+					recordedVelocity[i][j] = Double.parseDouble(velocityString[j]);
+				}
+			}
+			
+			for (int i = 0; i < recordedNoise.length; i++) {
+				String line = br.readLine();
+				recordedNoise[i] = Double.parseDouble(line);
+			}
+			
+			for (int i = 0; i < particles.length; i++) {
+				particles[i] = new Particle(recordedWeights[i], recordedVelocity[i], recordedNoise[i], i);
 			}
 			br.close();
 		} catch (Exception e) {
@@ -127,11 +139,11 @@ public class PSOTrainer {
 			ParticlePlayer player = new ParticlePlayer(particles[i]);
 			player.play(0);
 			double fitness = player.thirdfitnessEvaluation();
-			fitnesses[i] = particles[i].updateFitness(fitness);
+			fitnesses[i] = fitness;
+			particles[i].updateFitness(fitness);
 
 			if(bestLinesCleared[i] < player.getLinesCleared()){
 				bestLinesCleared[i] = player.getLinesCleared();
-				bestWeight[i] = player.getParticlePostion().clone();
 			}
 		}
 	}
@@ -145,14 +157,30 @@ public class PSOTrainer {
 			PrintWriter writer = new PrintWriter(OUTPUT_FILE_NAME, ENCODING_FORM);
 
 			for (int i = 0; i < particles.length; i++) {
-//				Particle particle = particles[i];
-//				double[] weights = particle.getPosition();
-//				String[] weightsString = new String[weights.length];
-//				for (int j = 0; j < weights.length; j++) { weightsString[j] = Double.toString(weights[j]); }
-				String[] weighString = new String[bestWeight[i].length];
-				for(int j = 0; j < bestWeight[i].length;j++)
-					weighString[j] = Double.toString(bestWeight[i][j]);
-				writer.println(String.join(" ", weighString) + " " + bestLinesCleared[i]);
+				Particle particle = particles[i];
+				double[] weights = particle.getBestPosition();
+				String[] weightsString = new String[weights.length];
+				for (int j = 0; j < weights.length; j++) { weightsString[j] = Double.toString(weights[j]); }
+				writer.println(String.join(" ", weightsString));
+			}
+			
+			for (int i = 0; i < particles.length; i++) {
+				Particle particle = particles[i];
+				double[] velocities = particle.getBestVelocity();
+				String[] velocityString = new String[velocities.length];
+				for (int j = 0; j < velocities.length; j++) { velocityString[j] = Double.toString(velocities[j]); }
+				writer.println(String.join(" ", velocityString));
+			}
+			
+			for (int i = 0; i < particles.length; i++) {
+				Particle particle = particles[i];
+				String noiseFactorString = Double.toString(particle.getNoiseFactor());
+				writer.println(noiseFactorString);
+			}
+			
+			writer.println("Best scores: ");
+			for (int i = 0; i < particles.length; i++) {
+				writer.println(bestLinesCleared[i]);
 			}
 
 			writer.close();
@@ -179,12 +207,12 @@ public class PSOTrainer {
 			// neighbors, which is not the case. but for our project it does not really
 			// matter
 			// We initialize some dumb best index and best value first
-			int bestNeighbor = -1;
-			double bestNeighborFitness = (double) Integer.MIN_VALUE;
+			int bestNeighbor = 0;
+			double bestNeighborFitness = fitnesses[bestNeighbor];
 
 			// for each neighbor of the current particle, we find its fitness
 			// and updates best one so that we can update particle's velocity and position
-			for (int j = 0; j < neighbors.length; j++) {
+			for (int j = 1; j < neighbors.length; j++) {
 				if (fitnesses[neighbors[j]] > bestNeighborFitness) {
 					bestNeighbor = neighbors[j];
 					bestNeighborFitness = fitnesses[neighbors[j]];
@@ -192,7 +220,7 @@ public class PSOTrainer {
 			}
 
 			// do updates
-			particle.updateVelocity(particles[bestNeighbor].getPosition());
+			particle.updateVelocity(particles[bestNeighbor].getPosition(), bestNeighborFitness);
 			particle.updatePosition();
 		}
 	}
