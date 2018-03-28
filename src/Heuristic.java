@@ -55,16 +55,6 @@ class Heuristic {
 		
 		this.rangeOfHeight = Arrays.stream(currentTop).max().getAsInt() -  Arrays.stream(currentTop).min().getAsInt();
 	}
-	
-	public double getTotalHeuristic(Particle p) {
-		return 1.0 * (lineCleared * p.getPosition()[0]
-				+ numberOfHoles * p.getPosition()[1]
-				+ totalWeightOfHoles * p.getPosition()[2]
-				+ sumOfAdjacentColumnHeightDifference *  p.getPosition()[3]
-				+ landingHeight *  p.getPosition()[4]
-				+ totalHeight *  p.getPosition()[5]
-				+ rangeOfHeight *  p.getPosition()[6]);
-	}
 
 	public double getTotalHeuristic(double[] weight) {
 		return 1.0 * (lineCleared * weight[0]
