@@ -2,26 +2,26 @@ package tetris;
 import java.util.Arrays;
 
 class Heuristic {
-	
+
 	private int lineCleared;
-	
+
 	private int numberOfHoles;
-	
+
 	private int totalWeightOfHoles;
-	
+
 	private int sumOfAdjacentColumnHeightDifference;
-	
+
 	 //The row number of the lowest unoccupied cell that a shape placement will occupy
 	private int landingHeight;
-	
+
 	private int totalHeight;
-	
+
 	private int rangeOfHeight;
-	
-	
+
+
 	public Heuristic(int[][]currentFiled, int[] lastTop, int[] currentTop, int lineCleared) {
 		this.lineCleared = lineCleared;
-		
+
 		this.numberOfHoles = 0;
 		this.totalWeightOfHoles = 0;
 		for(int column = 0; column < State.COLS; column++) {
@@ -31,14 +31,14 @@ class Heuristic {
 					this.totalWeightOfHoles += (State.ROWS - 1 - row);
 				}
 			}
-		}	
-		
+		}
+
 		this.sumOfAdjacentColumnHeightDifference = 0;
 		for(int column = 1; column < State.COLS; column++) {
 			this.sumOfAdjacentColumnHeightDifference += Math.pow(Math.abs(currentTop[column]-currentTop[column-1]), 2);
 		}
 
-		
+
 		this.landingHeight = State.ROWS - 1;
 		for(int column = 0; column < State.COLS; column++) {
 			double topBeforeClear = currentTop[column] + lineCleared;
@@ -48,12 +48,12 @@ class Heuristic {
 				}
 			}
 		}
-		
+
 		this.totalHeight = 0;
 		for(int column = 0; column < State.COLS; column++) {
 			this.totalHeight += currentTop[column];
 		}
-		
+
 		this.rangeOfHeight = Arrays.stream(currentTop).max().getAsInt() -  Arrays.stream(currentTop).min().getAsInt();
 	}
 
@@ -70,7 +70,7 @@ class Heuristic {
 	public int getLineCleared() {
 		return lineCleared;
 	}
-	
+
 	public void setLineCleared(int lineCleared) {
 		this.lineCleared = lineCleared;
 	}
@@ -114,7 +114,7 @@ class Heuristic {
 	public void setTotalHeight(int totalHeight) {
 		this.totalHeight = totalHeight;
 	}
-	
+
 	public int getRangeOfHeight() {
 		return rangeOfHeight;
 	}
