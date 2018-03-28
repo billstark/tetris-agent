@@ -1,3 +1,4 @@
+package tetris.ga;
 import java.util.Random;
 
 public class GAParameterVector implements Comparable<GAParameterVector> {

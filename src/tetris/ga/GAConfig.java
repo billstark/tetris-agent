@@ -1,3 +1,4 @@
+package tetris.ga;
 public class GAConfig {
     // Population of parameter vectors
     public static final int POPULATION_SIZE = 1000;

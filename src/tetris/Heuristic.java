@@ -1,3 +1,4 @@
+package tetris;
 import java.util.Arrays;
 
 class Heuristic {
