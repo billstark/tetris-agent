@@ -48,8 +48,14 @@ class Particle {
 	public Particle(double[] initialPosition, int id) {
 		initializeNeighbours(id);
 		initializePosition(initialPosition);
-		initializeVelocity();
+		initializeVelocity(null);
 		this.id = id;
+	}
+	
+	public Particle(double[] initialPosition, double[] initialVelocity, int id) {
+		initializeNeighbours(id);
+		initializePosition(initialPosition);
+		initializeVelocity(initialVelocity);
 	}
 	
 	/**
@@ -71,12 +77,27 @@ class Particle {
 	/**
 	 * Initializes the velocity.
 	 * The initial velocity will be limited within [3/4 min bound, 3/4 max bound]
+	 * 
+	 * @param initial feed in velocity, can be null
 	 */
-	private void initializeVelocity() {
-		velocity = new double[NUM_OF_ATTRIBUTES];
-		for (int i = 0; i < velocity.length; i++) {
-			velocity[i] = (R_GENERATOR.nextDouble() - VELOCITY_BOUND) * SCALE_FACTOR;
+	private void initializeVelocity(double[] initialVelocity) {
+		if (initialVelocity == null) {
+			initialVelocity = generateRandomVelocity();
 		}
+		this.velocity = new double[NUM_OF_ATTRIBUTES];
+		this.velocity = initialVelocity.clone();
+	}
+	
+	/**
+	 * Generates a random velocity at the beginning.
+	 * @return a double array that represents the velocity
+	 */
+	private double[] generateRandomVelocity() {
+		double[] returnVelocity = new double[NUM_OF_ATTRIBUTES];
+		for (int i = 0; i < velocity.length; i++) {
+			returnVelocity[i] = (R_GENERATOR.nextDouble() - VELOCITY_BOUND) * SCALE_FACTOR;
+		}
+		return returnVelocity;
 	}
 
 	/**
