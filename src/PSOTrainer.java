@@ -5,8 +5,7 @@ import java.util.Random;
 
 public class PSOTrainer {
 
-	private final int NUM_OF_ITERATIONS = 10000;
-	private final String INPUT_FILE_NAME = "particles-input.txt";
+	private final int NUM_OF_ITERATIONS = 50000;	private final String INPUT_FILE_NAME = "particles-input.txt";
 	private final String OUTPUT_FILE_NAME = "particles-output.txt";
 
 	private final String ENCODING_FORM = "UTF-8";
