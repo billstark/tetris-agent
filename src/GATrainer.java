@@ -16,8 +16,8 @@ public class GATrainer {
         for (int i = 0; i < num_rounds; i++) {
             System.out.println("Iteration " + i);
             GATrainer trainer = new GATrainer();
-//            trainer.vectorPopulation = GATrainerUtils.createInitialVectorPopulation();
-            trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
+            trainer.vectorPopulation = GATrainerUtils.createInitialVectorPopulation();
+//            trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
             trainer.start(i, num_rounds);
         }
 
