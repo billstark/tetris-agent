@@ -123,7 +123,7 @@ public class PSOTrainer {
 	private void runAnIteration(int interation) {
 		for (int i = 0; i < particles.length; i++) {
 			ParticlePlayer player = new ParticlePlayer(particles[i]);
-			player.play();
+			player.play(0);
 			double fitness = player.thirdfitnessEvaluation();
 			fitnesses[i] = particles[i].updateFitness(fitness);
 

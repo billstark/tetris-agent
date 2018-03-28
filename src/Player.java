@@ -32,6 +32,7 @@ public class Player {
 
     /**
      * The function that executes a game play
+     * @param maxTurn Number of turns that the play terminates when reached. 0 or negative input for no limit. 
      */
     public void play(int maxTurn) {
 
