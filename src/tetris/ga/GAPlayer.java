@@ -1,3 +1,6 @@
+package tetris.ga;
+
+import tetris.Player;
 
 public class GAPlayer extends Player {
     // The vector that is used as a player

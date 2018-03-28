@@ -1,3 +1,6 @@
+package tetris.pso;
+
+import tetris.Player;
 
 public class ParticlePlayer extends Player {
 	// The particle that is used as a player
