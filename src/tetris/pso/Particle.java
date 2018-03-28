@@ -56,10 +56,11 @@ class Particle {
 		this.id = id;
 	}
 	
-	public Particle(double[] initialPosition, double[] initialVelocity, int id) {
+	public Particle(double[] initialPosition, double[] initialVelocity, double noiseFactor, int id) {
 		initializeNeighbours(id);
 		initializePosition(initialPosition);
 		initializeVelocity(initialVelocity);
+		this.noiseFactor = noiseFactor;
 	}
 	
 	/**
@@ -89,6 +90,7 @@ class Particle {
 			initialVelocity = generateRandomVelocity();
 		}
 		this.velocity = initialVelocity.clone();
+		this.bestVelocity = this.velocity.clone();
 	}
 	
 	/**
@@ -182,6 +184,7 @@ class Particle {
 		if (newFitness <= fitness) { return; }
 		fitness = newFitness;
 		bestPosition = position.clone();
+		bestVelocity = velocity.clone();
 	}
 	
 	/**
@@ -209,6 +212,10 @@ class Particle {
 	
 	public double[] getBestVelocity() {
 		return bestVelocity;
+	}
+	
+	public double getNoiseFactor() {
+		return noiseFactor;
 	}
 	
 }
