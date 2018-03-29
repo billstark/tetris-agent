@@ -35,7 +35,7 @@ class Heuristic {
 
 		this.sumOfAdjacentColumnHeightDifference = 0;
 		for(int column = 1; column < State.COLS; column++) {
-			this.sumOfAdjacentColumnHeightDifference += Math.pow(Math.abs(currentTop[column]-currentTop[column-1]), 2);
+			this.sumOfAdjacentColumnHeightDifference += Math.pow(Math.abs(currentTop[column]-currentTop[column-1]), 3);
 		}
 
 
