@@ -28,14 +28,14 @@ class Heuristic {
 			for(int row = currentTop[column]-1; row >= 0; row--) {
 				if(currentFiled[row][column] == 0){
 					this.numberOfHoles++;
-					this.totalWeightOfHoles += (State.ROWS - 1 - row);
+					this.totalWeightOfHoles += (currentTop[column] - row);
 				}
 			}
 		}
 
 		this.sumOfAdjacentColumnHeightDifference = 0;
 		for(int column = 1; column < State.COLS; column++) {
-			this.sumOfAdjacentColumnHeightDifference += Math.pow(Math.abs(currentTop[column]-currentTop[column-1]), 3);
+			this.sumOfAdjacentColumnHeightDifference += Math.pow(Math.abs(currentTop[column]-currentTop[column-1]), 2);
 		}
 
 

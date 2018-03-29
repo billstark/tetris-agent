@@ -6,7 +6,7 @@ public class Player {
     // The game state object
     private State state;
 
-    private long linesCleared;
+    private int linesCleared;
 
     //parameters for fitness
         private long totalHeight;
@@ -27,18 +27,16 @@ public class Player {
         this.totalHole = 0;
         this.averageHole = 0;
         this.round = 0;
-
-//      new TFrame(this.state);
     }
 
     /**
      * The function that executes a game play
      * @param maxTurn Number of turns that the play terminates when reached. 0 or negative input for no limit. 
      */
-    public void play(int maxTurn) {
+    public void play(int maxLinesCleared) {
 
         // Loop until the game is not lost
-        while (!state.lost && (maxTurn <= 0 || state.getTurnNumber() < maxTurn)) {
+        while (!state.lost && (maxLinesCleared <= 0 || state.getRowsCleared() < maxLinesCleared)) {
 
             // Some dumb value for initial best move
             int bestMove = -1;
@@ -62,6 +60,7 @@ public class Player {
                 // Test this move (maybe later can change `Heuristic` to a static class)
                 int testCleared = testMove(orientation, slot, state.getNextPiece(), currentBoard, currentTop);
                 if (testCleared < 0) { continue; }
+                
                 Heuristic stateEvaluator = new Heuristic(currentBoard, state.getTop(), currentTop, testCleared);
 
                 double score = stateEvaluator.getTotalHeuristic(getWeights());
@@ -145,9 +144,20 @@ public class Player {
      * @return the score
      */
     private double calculateHoleFactor(int[][] board) {
-        int count = 0;
-
-        // For each column
+        int count = getNumOfHoles();
+        return -count * 50;
+    }
+    
+    /**
+     * Gets the number of holes in the current game board.
+     * @param board
+     * @return the number of holes.
+     */
+    public int getNumOfHoles() {
+    	int[][] board = state.getField();
+    	int count = 0;
+    	
+    	// For each column
         for (int i = 0; i < State.COLS; i++) {
 
             // For each position in the column
@@ -166,7 +176,33 @@ public class Player {
                 }
             }
         }
-        return -count * 50;
+        return count;
+    }
+    
+    /**
+     * Gets the current highest column in the game
+     * @return the max height
+     */
+    public int getMaxHeight() {
+    	int[] top = state.getTop();
+    	int max = top[0];
+    	for (int i = 1; i < top.length; i++) {
+    		max = Math.max(max, top[i]);
+    	}
+    	return max;
+    }
+    
+    /**
+     * Gets the average height for the current game
+     * @return the average height
+     */
+    public double getAverageHeight() {
+    	int[] top = state.getTop();
+    	int total = 0;
+    	for (int i = 0; i < top.length; i++) {
+    		total += top[i];
+    	}
+    	return total * 1.0 / top.length;
     }
 
     /**
@@ -241,7 +277,7 @@ public class Player {
         return rowsCleared;
     }
 
-    public long getLinesCleared() {
+    public int getLinesCleared() {
         return linesCleared;
     }
 

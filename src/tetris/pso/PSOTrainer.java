@@ -6,9 +6,12 @@ import java.util.Random;
 
 public class PSOTrainer {
 
-	private final int NUM_OF_ITERATIONS = 100;	
+	private final int NUM_OF_ITERATIONS = 500;
+	private final int NUM_OF_GAMES_PER_ITER = 10;
+	private final int MAX_LINES_CLEARED = 30000;
 	private final String INPUT_FILE_NAME = "particles-input.txt";
 	private final String OUTPUT_FILE_NAME = "particles-output.txt";
+	
 
 	private final String ENCODING_FORM = "UTF-8";
 
@@ -22,13 +25,13 @@ public class PSOTrainer {
 	private double[] fitnesses;
 
 	//The output is 25 best games of all the iterations
-	private long[] bestLinesCleared;
+	private double[] bestLinesCleared;
 
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
 
-//		trainer.initializeParticles();
-		trainer.initializeParticlesFromPreviousResult();
+		trainer.initializeParticles();
+//		trainer.initializeParticlesFromPreviousResult();
 
 		long startTime = System.currentTimeMillis();
 		trainer.start();
@@ -46,7 +49,7 @@ public class PSOTrainer {
 			// Initializes particles and fitness array
 			particles = new Particle[Particle.POPULATION_SIZE];
 			fitnesses = new double[Particle.POPULATION_SIZE];
-			bestLinesCleared = new long[Particle.POPULATION_SIZE];
+			bestLinesCleared = new double[Particle.POPULATION_SIZE];
 
 			for (int i = 0; i < Particle.POPULATION_SIZE; i++) {
 
@@ -75,7 +78,7 @@ public class PSOTrainer {
 	private void initializeParticlesFromPreviousResult() {
 		particles = new Particle[Particle.POPULATION_SIZE];
 		fitnesses = new double[Particle.POPULATION_SIZE];
-		bestLinesCleared = new long[Particle.POPULATION_SIZE];
+		bestLinesCleared = new double[Particle.POPULATION_SIZE];
 		double[][] recordedWeights = new double[Particle.POPULATION_SIZE][Particle.NUM_OF_ATTRIBUTES];
 		double[][] recordedVelocity = new double[Particle.POPULATION_SIZE][Particle.NUM_OF_ATTRIBUTES];
 		double[] recordedNoise = new double[Particle.POPULATION_SIZE];
@@ -135,17 +138,44 @@ public class PSOTrainer {
 	 * Note: particle update will return its current individual best fitness.
 	 */
 	private void runAnIteration() {
+		
 		for (int i = 0; i < particles.length; i++) {
-			ParticlePlayer player = new ParticlePlayer(particles[i]);
-			player.play(0);
-			double fitness = player.thirdfitnessEvaluation();
+			int totalCleared = 0;
+			int totalNumOfHoles = 0;
+			int mostNumOfHoles = Integer.MIN_VALUE;
+			int maxHeight = Integer.MIN_VALUE;
+			double totalAverageHeight = 0;
+			
+			for (int j = 0; j < NUM_OF_GAMES_PER_ITER; j++) {
+				ParticlePlayer player = new ParticlePlayer(particles[i]);
+				player.play(MAX_LINES_CLEARED);
+				int numOfHoles = player.getNumOfHoles();
+				int linesCleared = player.getLinesCleared();
+				double averageHeight = player.getAverageHeight();
+				
+				totalCleared += linesCleared;
+				totalNumOfHoles += numOfHoles;
+				totalAverageHeight += averageHeight;
+				
+				mostNumOfHoles = Math.max(player.getNumOfHoles(), mostNumOfHoles);
+				maxHeight = Math.max(player.getMaxHeight(), maxHeight);				
+			}
+			double fitness = calculateFitness(totalCleared, totalNumOfHoles, mostNumOfHoles, maxHeight, totalAverageHeight);
 			fitnesses[i] = fitness;
 			particles[i].updateFitness(fitness);
 
-			if(bestLinesCleared[i] < player.getLinesCleared()){
-				bestLinesCleared[i] = player.getLinesCleared();
+			if(bestLinesCleared[i] < totalCleared * 1.0 / NUM_OF_GAMES_PER_ITER){
+				bestLinesCleared[i] = totalCleared * 1.0 / NUM_OF_GAMES_PER_ITER;
 			}
 		}
+	}
+	
+	private double calculateFitness(int totalCleared, int totalHoles, int mostHoles, int maxHeight, double totalAverageHeight) {
+		double averageCleared = totalCleared * 1.0 / NUM_OF_GAMES_PER_ITER;
+		double averageHoles = totalHoles * 1.0 / NUM_OF_GAMES_PER_ITER;
+		double averageHeight = totalAverageHeight / NUM_OF_GAMES_PER_ITER;
+		
+		return averageCleared + (mostHoles - averageHoles) * 500 + (maxHeight - averageHeight) * 500;
 	}
 
 	/**
