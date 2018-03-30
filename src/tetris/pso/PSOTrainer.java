@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class PSOTrainer {
 
-	private final int NUM_OF_ITERATIONS = 500;
+	private final int NUM_OF_ITERATIONS = 100;
 	private final int NUM_OF_GAMES_PER_ITER = 10;
 	private final int MAX_LINES_CLEARED = 30000;
 	private final String INPUT_FILE_NAME = "particles-input.txt";
@@ -30,8 +30,8 @@ public class PSOTrainer {
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
 
-		trainer.initializeParticles();
-//		trainer.initializeParticlesFromPreviousResult();
+//		trainer.initializeParticles();
+		trainer.initializeParticlesFromPreviousResult();
 
 		long startTime = System.currentTimeMillis();
 		trainer.start();
@@ -175,7 +175,7 @@ public class PSOTrainer {
 		double averageHoles = totalHoles * 1.0 / NUM_OF_GAMES_PER_ITER;
 		double averageHeight = totalAverageHeight / NUM_OF_GAMES_PER_ITER;
 		
-		return averageCleared + (mostHoles - averageHoles) * 500 + (maxHeight - averageHeight) * 500;
+		return averageCleared + (mostHoles - averageHoles) / mostHoles * 500 + (maxHeight - averageHeight) / maxHeight * 500;
 	}
 
 	/**
