@@ -60,11 +60,11 @@ class Heuristic {
 	public double getTotalHeuristic(double[] weight) {
 		return 1.0 * (lineCleared * weight[0]
 				+ numberOfHoles * weight[1]
-				+ totalWeightOfHoles * weight[2]
+//				+ totalWeightOfHoles * weight[2]
 				+ sumOfAdjacentColumnHeightDifference * weight[3]
-				+ landingHeight * weight[4]
-				+ totalHeight * weight[5]
-				+ rangeOfHeight * weight[6]);
+//				+ landingHeight * weight[4]
+				+ totalHeight * weight[5]);
+//				+ rangeOfHeight * weight[6]);
 	}
 
 	public int getLineCleared() {

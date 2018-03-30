@@ -19,9 +19,9 @@ class Particle {
 	// Defines the constants for PSO velocity updates
 	private final double INERTIA_WEIGHT = 0.72;		
 	private final double COGNITIVE_TERM = 1.42;	 	
-	private final double SOCIAL_TERM = 1.42;	 	
+	private final double SOCIAL_TERM = 1.42; 	
 	private final double VELOCITY_BOUND = 0.5;
-	private final double NOISE_LOWER_BOUND = 0.0001;
+	private final double NOISE_LOWER_BOUND = 0.1;
 	
 	private final Random R_GENERATOR = new Random();
 			
