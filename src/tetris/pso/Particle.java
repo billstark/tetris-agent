@@ -14,7 +14,7 @@ class Particle {
 	 * weight of range of height
 	 */
 	public static final int POPULATION_SIZE = 25;
-	public static final int NUM_OF_ATTRIBUTES = 7;
+	public static final int NUM_OF_ATTRIBUTES = 4;
 	
 	// Defines the constants for PSO velocity updates
 	private final double INERTIA_WEIGHT = 0.72;		
@@ -139,7 +139,7 @@ class Particle {
 				reduceNoise();
 			}
 			
-			velocity[i] = velocity[i] * INERTIA_WEIGHT + cognitiveVelocity + socialVelocity + noiseVelocity;
+			velocity[i] = velocity[i] * INERTIA_WEIGHT + cognitiveVelocity + socialVelocity;
 			sanitizeVelocity();
 		}
 	}

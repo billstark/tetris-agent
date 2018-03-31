@@ -276,6 +276,16 @@ public class Player {
         }
         return rowsCleared;
     }
+    
+    /**
+     * Gets possible moves in as a 2D array for a specific move.
+     * 
+     * @param piece the id of the piece
+     * @return an 2D array. each one is a pair of [slot, orient]
+     */
+    private int[][] getPossibleLegalMoves(int piece) {
+    	return State.legalMoves[piece];
+    }
 
     public int getLinesCleared() {
         return linesCleared;

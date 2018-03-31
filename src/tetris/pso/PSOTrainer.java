@@ -7,8 +7,8 @@ import java.util.Random;
 public class PSOTrainer {
 
 	private final int NUM_OF_ITERATIONS = 100;
-	private final int NUM_OF_GAMES_PER_ITER = 10;
-	private final int MAX_LINES_CLEARED = 30000;
+	private final int NUM_OF_GAMES_PER_ITER = 20;
+	private final int MAX_LINES_CLEARED = 300000;
 	private final String INPUT_FILE_NAME = "particles-input.txt";
 	private final String OUTPUT_FILE_NAME = "particles-output.txt";
 	
