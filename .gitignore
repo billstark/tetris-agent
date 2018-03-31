@@ -4,3 +4,6 @@ particles-input.txt
 particles-output.txt
 GA_train_output.txt
 /._.DS_Store
+/.idea
+/cs3243-project.iml
+
