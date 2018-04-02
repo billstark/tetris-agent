@@ -61,9 +61,9 @@ public class Player {
                 int testCleared = testMove(orientation, slot, state.getNextPiece(), currentBoard, currentTop);
                 if (testCleared < 0) { continue; }
                 
-                Heuristic stateEvaluator = new Heuristic(currentBoard, state.getTop(), currentTop, testCleared);
+                NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, state.getTop(), currentTop, testCleared);
 
-                double score = stateEvaluator.getTotalHeuristic(getWeights());
+                double score = stateEvaluator.getScore(getWeights());
 
                 // Updates best score and best move
                 if (score > bestScore) {
