@@ -29,14 +29,19 @@ public class PSOTrainer {
 
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
-
+		long timeZero = System.currentTimeMillis();
 		trainer.initializeParticles();
-//		trainer.initializeParticlesFromPreviousResult();
-
-		long startTime = System.currentTimeMillis();
 		trainer.start();
-		long endTime = System.currentTimeMillis();
-		System.out.println("total cost: " + (endTime - startTime)/60000.0 + " minutes");
+		System.out.println("total cost: " + (System.currentTimeMillis() - timeZero)/60000.0 + " minutes\n\n\n\n");
+		
+		for(int i=0;i<10;i++) {
+			long start = System.currentTimeMillis();
+			trainer.initializeParticlesFromPreviousResult();
+			trainer.start();
+			long end = System.currentTimeMillis();
+			System.out.println("this iteration cost: "+ (end - start)/60000.0 + " minutes");
+			System.out.println("total cost: " + (end - timeZero)/60000.0 + " minutes\n\n\n\n");
+		}
 	}
 
 	/**
