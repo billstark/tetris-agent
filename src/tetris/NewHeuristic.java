@@ -181,4 +181,20 @@ public class NewHeuristic {
 		erodedPieceCount = usedUnits * linesCleared;
 	}
 	
+	
+	public int getColumnTransition(){
+		return columnTransitions;
+	}
+	
+	public int getRowTransition(){
+		return rowTransitions;
+	}
+	
+	public int getPileHeight(){
+		return pileHeight;
+	}
+	
+	public int getHoleCount(){
+		return holeCount;
+	}
 }

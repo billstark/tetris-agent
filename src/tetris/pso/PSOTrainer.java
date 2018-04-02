@@ -9,7 +9,7 @@ public class PSOTrainer {
 
 	private final int NUM_OF_ITERATIONS = 50;
 	private final int NUM_OF_GAMES_PER_ITER = 20;
-	private final int MAX_LINES_CLEARED = 300000;
+	private final int MAX_LINES_CLEARED = Integer.MAX_VALUE;
 	private final String INPUT_FILE_NAME = "particles-input.txt";
 	private final String OUTPUT_FILE_NAME = "particles-output.txt";
 
@@ -30,13 +30,13 @@ public class PSOTrainer {
 	public static void main(String[] args) {
 		PSOTrainer trainer = new PSOTrainer();
 
-//		trainer.initializeParticles();
-		trainer.initializeParticlesFromPreviousResult();
+		trainer.initializeParticles();
+//		trainer.initializeParticlesFromPreviousResult();
 
 		long startTime = System.currentTimeMillis();
 		trainer.start();
 		long endTime = System.currentTimeMillis();
-		System.out.println(endTime - startTime);
+		System.out.println("total cost: " + (endTime - startTime)/60000.0 + " minutes");
 	}
 
 	/**
@@ -126,7 +126,10 @@ public class PSOTrainer {
 	private void start() {
 		for (int i = 0; i < NUM_OF_ITERATIONS; i++) {
 			System.out.println("Running iteration " + i);
+			long start = System.currentTimeMillis();
 			runAnIteration();
+			long end = System.currentTimeMillis();
+			System.out.println((end - start)/60000.0 + " minutes.\n");
 			updatePositions();
 		}
 		writeWeightsToFile();
@@ -143,27 +146,16 @@ public class PSOTrainer {
 
 		for (int i = 0; i < particles.length; i++) {
 			int totalCleared = 0;
-			int totalNumOfHoles = 0;
-			int mostNumOfHoles = Integer.MIN_VALUE;
-			int maxHeight = Integer.MIN_VALUE;
-			double totalAverageHeight = 0;
+			double fitness = 0;
 
 			for (int j = 0; j < NUM_OF_GAMES_PER_ITER; j++) {
 				ParticlePlayer player = new ParticlePlayer(particles[i]);
 				player.play(MAX_LINES_CLEARED);
-				int numOfHoles = player.getNumOfHoles();
-				int linesCleared = player.getLinesCleared();
-				double averageHeight = player.getAverageHeight();
-
-				totalCleared += linesCleared;
-				totalNumOfHoles += numOfHoles;
-				totalAverageHeight += averageHeight;
-
-				mostNumOfHoles = Math.max(player.getNumOfHoles(), mostNumOfHoles);
-				maxHeight = Math.max(player.getMaxHeight(), maxHeight);
+				fitness += player.fitnessEvaluation();
+				totalCleared += player.getLinesCleared();
 			}
-			double fitness = calculateFitness(totalCleared, totalNumOfHoles, mostNumOfHoles, maxHeight,
-					totalAverageHeight);
+			
+			fitness /= (NUM_OF_GAMES_PER_ITER * 1.0);
 			fitnesses[i] = fitness;
 			particles[i].updateFitness(fitness);
 
@@ -171,16 +163,6 @@ public class PSOTrainer {
 				bestLinesCleared[i] = totalCleared * 1.0 / NUM_OF_GAMES_PER_ITER;
 			}
 		}
-	}
-
-	private double calculateFitness(int totalCleared, int totalHoles, int mostHoles, int maxHeight,
-			double totalAverageHeight) {
-		double averageCleared = totalCleared * 1.0 / NUM_OF_GAMES_PER_ITER;
-		double averageHoles = totalHoles * 1.0 / NUM_OF_GAMES_PER_ITER;
-		double averageHeight = totalAverageHeight / NUM_OF_GAMES_PER_ITER;
-
-		return averageCleared + (mostHoles - averageHoles) / mostHoles * 500
-				+ (maxHeight - averageHeight) / maxHeight * 500;
 	}
 
 	/**
