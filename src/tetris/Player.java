@@ -61,9 +61,9 @@ public class Player {
                 int testCleared = testMove(orientation, slot, state.getNextPiece(), currentBoard, currentTop);
                 if (testCleared < 0) { continue; }
                 
-                Heuristic stateEvaluator = new Heuristic(currentBoard, state.getTop(), currentTop, testCleared);
+                NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, state.getTop(), currentTop, testCleared);
 
-                double score = stateEvaluator.getTotalHeuristic(getWeights());
+                double score = stateEvaluator.getScore(getWeights());
 
                 // Updates best score and best move
                 if (score > bestScore) {
@@ -275,6 +275,16 @@ public class Player {
             }
         }
         return rowsCleared;
+    }
+    
+    /**
+     * Gets possible moves in as a 2D array for a specific move.
+     * 
+     * @param piece the id of the piece
+     * @return an 2D array. each one is a pair of [slot, orient]
+     */
+    private int[][] getPossibleLegalMoves(int piece) {
+    	return State.legalMoves[piece];
     }
 
     public int getLinesCleared() {
