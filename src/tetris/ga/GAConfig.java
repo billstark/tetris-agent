@@ -7,7 +7,7 @@ public class GAConfig {
     public static final int NUM_GAMES_IN_ITERATION = 100;
 
     // Number of moves performed in each game
-    public static final int NUM_MOVES_IN_GAME = 500;
+    public static final int NUM_MOVES_IN_GAME = 2000;
 
     // Portion of population chosen for selecting the two fittest parents
     public static final double PORTION_PARENT_BATCH = 0.1;
