@@ -37,13 +37,10 @@ public class PlayerSkeleton {
 			// Have a copy of the current top
 			int[] currentTop = s.getTop().clone();
 			
-			int testCleared = testMove(orientation, slot, s.getNextPiece(), currentBoard, currentTop,s);
-            if (testCleared < 0) { continue; }
-            
-//            NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, s.getTop(), currentTop, testCleared );
-//
+//			int testCleared = testMove(orientation, slot, s.getNextPiece(), currentBoard, currentTop,s);
+//            if (testCleared < 0) { continue; }
+//            NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, s.getTop(), currentTop, testCleared)；
 //            double score = stateEvaluator.getScore(WEIGHT);
-//
 //            // Updates best score and best move
 //            if (score > maxScore) {
 //            	maxScore = score;
@@ -67,16 +64,16 @@ public class PlayerSkeleton {
 	
 	public static void main(String[] args) {
 		State s = new State();
-//		new TFrame(s);
+		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		int rowCleared = 0;
 		long startTime = System.currentTimeMillis();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-//			s.draw();
-//			s.drawNext(0,0);
+			s.draw();
+			s.drawNext(0,0);
 			try {
-				Thread.sleep(0);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -248,7 +245,7 @@ public class PlayerSkeleton {
 	        }
 
 	        // check if game ended. If game ends, just give -1 as output
-	        if (height + State.getpHeight()[nextPiece][orient] >= State.ROWS) { return -1; }
+	        if (height + State.getpHeight()[nextPiece][orient] >= State.ROWS) { return Integer.MIN_VALUE; }
 
 	        // for each column in the piece - fill in the appropriate blocks
 	        for (int i = 0; i < State.getpWidth()[nextPiece][orient]; i++) {
