@@ -37,7 +37,7 @@ public class PlayerSkeleton {
 			// Have a copy of the current top
 			int[] currentTop = s.getTop().clone();
 			
-//			int testCleared = testMove(orientation, slot, s.getNextPiece(), currentBoard, currentTop,s);
+//			int testCleared = testMoveInNormalWay(orientation, slot, s.getNextPiece(), currentBoard, currentTop,s);
 //            if (testCleared < 0) { continue; }
 //            NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, s.getTop(), currentTop, testCleared);
 //            double score = stateEvaluator.getScore(WEIGHT);
@@ -47,9 +47,8 @@ public class PlayerSkeleton {
 //                bestMove = i;
 //            }
 			
-			
-			//max player choose the maximum value
-			double score = testMove(s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
+			double score = testMoveInMinmax(maxScore, s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
+//			double score = testMoveInExpecimax( s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
 			if(score > maxScore) {
 				maxScore = score;
 				bestMove = i;
@@ -63,31 +62,33 @@ public class PlayerSkeleton {
 	}
 	
 	public static void main(String[] args) {
-		State s = new State();
-//		new TFrame(s);
-		PlayerSkeleton p = new PlayerSkeleton();
-		int rowCleared = 0;
-		while(!s.hasLost()) {
-			s.makeMove(p.pickMove(s,s.legalMoves()));
-//			s.draw();
-//			s.drawNext(0,0);
-			try {
-				Thread.sleep(0);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		long best = Integer.MIN_VALUE;
+		for(int i=0;i<100;i++) {
+			State s = new State();
+	//		new TFrame(s);
+			PlayerSkeleton p = new PlayerSkeleton();
+			long rowCleared = 0;
+			while(!s.hasLost()) {
+				s.makeMove(p.pickMove(s,s.legalMoves()));
+	//			s.draw();
+	//			s.drawNext(0,0);
+				try {
+					Thread.sleep(0);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if(s.getRowsCleared()%1000 == 0 && rowCleared!=s.getRowsCleared()) {
+					rowCleared = s.getRowsCleared();
+					System.out.println(rowCleared);
+				}
 			}
-			
-			if(s.getRowsCleared()%1000 == 0 && rowCleared != s.getRowsCleared()) {
-				rowCleared = s.getRowsCleared();
-				System.out.println(rowCleared);
+			if(s.getRowsCleared() > best) best = s.getRowsCleared();
+			System.out.println("Round "+ (i+1) +" completed "+s.getRowsCleared()+" rows.");
 			}
-		}
-		System.out.println("You have completed "+s.getRowsCleared()+" rows.");
+		System.out.println("Best: "+ best+" rows.");
 	}
 	
-	
-	private int testMove(int orient, int slot, int nextPiece, int[][] gameBoard, int[] top, State state) {
-
+	private int testMoveInNormalWay(int orient, int slot, int nextPiece, int[][] gameBoard, int[] top, State state) {
         int height = top[slot] - State.getpBottom()[nextPiece][orient][0];
 
         for (int c = 1; c < State.getpWidth()[nextPiece][orient]; c++) {
@@ -144,7 +145,7 @@ public class PlayerSkeleton {
         return rowsCleared;
     }
 	
-	 private double testMove(State state, int orient, int slot, int nextPiece, int[][] gameBoard,int[] top) {
+	 private double testMoveInMinmax(double maxScore,State state, int orient, int slot, int nextPiece, int[][] gameBoard,int[] top) {
 	    	
  		int height = top[slot] - State.getpBottom()[nextPiece][orient][0];
 
@@ -196,14 +197,12 @@ public class PlayerSkeleton {
          }
      }
      	
-     double totalScore = 0;
-     int success = 0;
+     	double minScore = Integer.MAX_VALUE;
      //test next move after this move is made
      	for(int nextNextPiece = 0; nextNextPiece < State.N_PIECES; nextNextPiece++) {
      		double secondMaxScore = Integer.MIN_VALUE;
      		
  			for(int i=0;i<State.legalMoves[nextNextPiece].length;i++) {
- 				
      			// Gets orientation and slot of the current move
 				int nextOrientation = State.legalMoves[nextNextPiece][i][State.ORIENT];
 				int nextSlot = State.legalMoves[nextNextPiece][i][State.SLOT];
@@ -216,19 +215,94 @@ public class PlayerSkeleton {
 				
 				//max player chooses the maximum value
 				if(score > secondMaxScore) secondMaxScore = score;
+				if(secondMaxScore > minScore) break;
 			}
- 			
+ 			if(secondMaxScore < minScore) minScore = secondMaxScore;
+ 			if(minScore < maxScore) break;
+     	}
+     	return minScore;
+	 }
+	 
+	 private double testMoveInExpecimax(State state, int orient, int slot, int nextPiece, int[][] gameBoard,int[] top) {
+ 		int height = top[slot] - State.getpBottom()[nextPiece][orient][0];
+ 		
+ 		for (int c = 1; c < State.getpWidth()[nextPiece][orient]; c++) {
+ 			height = Math.max(height, top[slot + c] - State.getpBottom()[nextPiece][orient][c]);
+ 		}
+
+ 		// check if game ended. If game ends, just give -1 as output
+ 		if (height + State.getpHeight()[nextPiece][orient] >= State.ROWS) { return (double) Integer.MIN_VALUE; }
+		
+ 		// for each column in the piece - fill in the appropriate blocks
+ 		for (int i = 0; i < State.getpWidth()[nextPiece][orient]; i++) {
+		
+ 			// from bottom to top of brick
+ 			for (int h = height + State.getpBottom()[nextPiece][orient][i]; h < height + State.getpTop()[nextPiece][orient][i]; h++) {
+		        gameBoard[h][i + slot] = state.getTurnNumber() + 1;
+		    }
+		}
+		
+ 		// adjust top
+		for (int c = 0; c < State.getpWidth()[nextPiece][orient]; c++) {
+		    top[slot + c] = height + State.getpTop()[nextPiece][orient][c];
+		}
+		
+		//check for full rows - starting at the top
+		for (int r = height + State.getpHeight()[nextPiece][orient] - 1; r >= height; r--) {
+		    //check all columns in the row
+			boolean full = true;
+			for (int c = 0; c < State.COLS; c++) {
+			    if (gameBoard[r][c] == 0) {
+			        full = false;
+			        break;
+			    }
+			}
+			
+			//if the row was full - remove it and slide above stuff down
+			if (full) {
+				//for each column
+				for (int c = 0; c < State.COLS; c++) {
+			
+				//slide down all bricks
+				for (int i = r; i < top[c]; i++) {
+					gameBoard[i][c] = gameBoard[i + 1][c];
+				}
+				//lower the top
+				top[c]--;
+				while (top[c] >= 1 && gameBoard[top[c] - 1][c] == 0) { top[c]--; }
+				}
+			}
+		}
+	     double totalScore = 0;
+	     int success = 0;
+	     //test next move after this move is made
+	     for(int nextNextPiece = 0; nextNextPiece < State.N_PIECES; nextNextPiece++) {
+	     	double secondMaxScore = Integer.MIN_VALUE;
+	     		
+	 		for(int i=0;i<State.legalMoves[nextNextPiece].length;i++) {
+	 			// Gets orientation and slot of the current move
+	 			int nextOrientation = State.legalMoves[nextNextPiece][i][State.ORIENT];
+	 			int nextSlot = State.legalMoves[nextNextPiece][i][State.SLOT];
+					
+	 			// Have a copy of the current game board
+	 			int[][] currentBoard = new int[gameBoard.length][];
+	 			for (int j = 0; j < currentBoard.length; j++) { currentBoard[j] = gameBoard[j].clone(); }
+				
+	 			double score = testMove(state, nextOrientation, nextSlot, nextNextPiece, currentBoard, top.clone(), top.clone());
+					
+	 			//max player chooses the maximum value
+	 			if(score > secondMaxScore) secondMaxScore = score;
+	 		}
+	 		
  			if(secondMaxScore > Integer.MIN_VALUE) {
  				success++;
  				totalScore += secondMaxScore;
  			}
-     	}
-     	
-     	if(success == 0)
-     		return Integer.MIN_VALUE;
-     	
-		return 1.0*totalScore/success;
-	}
+	     }
+	     if(success == 0)
+	    	 return Integer.MIN_VALUE;
+	     return 1.0*totalScore/success;
+	 }
 	 
 	 private double testMove(State state, int orient, int slot, int nextPiece, int[][] gameBoard, int[] top, int[] lastTop) {
 
