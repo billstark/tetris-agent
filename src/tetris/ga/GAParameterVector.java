@@ -4,14 +4,16 @@ import java.util.Random;
 public class GAParameterVector implements Comparable<GAParameterVector> {
     private final Random R_GENERATOR = new Random();
     public int fitness = 0;
+    
+    public static final int NUM_WEIGHTS = 13;
 
-    public double[] weight = new double[7];
+    public double[] weight = new double[NUM_WEIGHTS];
 
     /**
      * Randomly initialize weight.
      */
     public GAParameterVector() {
-        for (int i=0; i<7; i++) {
+        for (int i=0; i<NUM_WEIGHTS; i++) {
             weight[i] = R_GENERATOR.nextDouble() * 2 - 1;
         }
         normalize();
@@ -26,15 +28,15 @@ public class GAParameterVector implements Comparable<GAParameterVector> {
     }
 
     /**
-     * Normalizes 7-dimension vector `weight`.
+     * Normalizes NUM_WEIGHTS-dimension vector `weight`.
      */
     private void normalize() {
         double sum_sqr = 0;
-        for (int i=0; i<7; i++) {
+        for (int i=0; i<NUM_WEIGHTS; i++) {
             sum_sqr += weight[i] * weight[i];
         }
         double normalization_factor = Math.sqrt(sum_sqr);
-        for (int i=0; i<7; i++) {
+        for (int i=0; i<NUM_WEIGHTS; i++) {
             weight[i] /= normalization_factor;
         }
     }
@@ -53,7 +55,7 @@ public class GAParameterVector implements Comparable<GAParameterVector> {
      * Mutates a component of vector `weight`.
      */
     private void mutate() {
-        int idx = R_GENERATOR.nextInt(7);
+        int idx = R_GENERATOR.nextInt(NUM_WEIGHTS);
         double amount = (R_GENERATOR.nextDouble() * 2 - 1) * GAConfig.MUTATION_AMOUNT_MAX;
         weight[idx] += amount;
         normalize();
@@ -66,8 +68,8 @@ public class GAParameterVector implements Comparable<GAParameterVector> {
      * @return
      */
     public static GAParameterVector crossover(GAParameterVector vec1, GAParameterVector vec2) {
-        double[] child_weights = new double[7];
-        for (int i=0; i<7; i++) {
+        double[] child_weights = new double[NUM_WEIGHTS];
+        for (int i=0; i<NUM_WEIGHTS; i++) {
             child_weights[i] = vec1.weight[i] * vec1.fitness + vec2.weight[i] * vec2.fitness;
         }
         GAParameterVector child = new GAParameterVector(child_weights);

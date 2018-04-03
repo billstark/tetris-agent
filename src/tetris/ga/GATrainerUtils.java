@@ -21,8 +21,8 @@ public class GATrainerUtils {
             BufferedReader br = new BufferedReader(new FileReader(GAConfig.OUTPUT_FILE_NAME));
             for (int i=0; i<population_size; i++) {
                 String[] weight_strings = br.readLine().split(" ");
-                double[] weight = new double[7];
-                for (int j=0; j<7; j++) {
+                double[] weight = new double[GAParameterVector.NUM_WEIGHTS];
+                for (int j=0; j<GAParameterVector.NUM_WEIGHTS; j++) {
                     weight[j] = Double.parseDouble(weight_strings[j]);
                 }
                 population[i] = new GAParameterVector(weight);

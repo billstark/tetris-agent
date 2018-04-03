@@ -12,13 +12,13 @@ public class GATrainer {
     private static long startTime;
 
     public static void main(String[] args) {
-        int num_rounds = 5;
+        int num_rounds = 1;
         startTime = System.currentTimeMillis();
         for (int i = 0; i < num_rounds; i++) {
             System.out.println("Iteration " + i);
             GATrainer trainer = new GATrainer();
-            trainer.vectorPopulation = GATrainerUtils.createInitialVectorPopulation();
-//            trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
+//            trainer.vectorPopulation = GATrainerUtils.createInitialVectorPopulation();
+            trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
             trainer.start(i, num_rounds);
         }
 
