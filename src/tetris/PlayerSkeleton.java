@@ -49,10 +49,12 @@ public class PlayerSkeleton {
             	maxScore = score;
                 bestMove = i;
             }
+			
+			
 			//max player choose the maximum value
-//			double averageScore = testMove(maxScore,s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
-//			if(averageScore > maxScore) {
-//				maxScore = averageScore;
+//			double score = testMove(maxScore,s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
+//			if(score > maxScore) {
+//				maxScore = score;
 //				bestMove = i;
 //			}
 		}
@@ -67,6 +69,7 @@ public class PlayerSkeleton {
 		State s = new State();
 		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
+		long startTime = System.currentTimeMillis();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
 			s.draw();
@@ -76,8 +79,13 @@ public class PlayerSkeleton {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
+			if(s.getRowsCleared()%1000 == 0)
+				System.out.println(s.getRowsCleared());
 		}
+		long endTime = System.currentTimeMillis();
 		System.out.println("You have completed "+s.getRowsCleared()+" rows.");
+		System.out.println(String.format("The time cost is %.2f minutes.", (endTime-startTime/60000.0)));
 	}
 	
 	
@@ -213,18 +221,19 @@ public class PlayerSkeleton {
 			
 				double score = testMove(state, nextOrientation, nextSlot, nextNextPiece, currentBoard, currentTop, currentTop);
 				
-				totalScore += score;
-				
-				//max player chooses the minimum value
+				//max player chooses the maximum value
 				if(score > secondMaxScore) secondMaxScore = score;
-//				//prune
+				//prune
 //				if(secondMaxScore > minScore) break;
 			}
+ 			//min player chooses the minimum value
 // 			if(secondMaxScore < minScore) minScore = secondMaxScore;
+ 			//prune
 // 			if(minScore < maxScore) break;
  			totalScore += secondMaxScore;
      	}
      	
+//     	return minScore;
 		return 1.0*totalScore/State.N_PIECES;
 	}
 	 
