@@ -39,7 +39,7 @@ public class PlayerSkeleton {
 			
 //			int testCleared = testMove(orientation, slot, s.getNextPiece(), currentBoard, currentTop,s);
 //            if (testCleared < 0) { continue; }
-//            NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, s.getTop(), currentTop, testCleared)；
+//            NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, s.getTop(), currentTop, testCleared);
 //            double score = stateEvaluator.getScore(WEIGHT);
 //            // Updates best score and best move
 //            if (score > maxScore) {
