@@ -49,7 +49,7 @@ public class PlayerSkeleton {
 			
 			
 			//max player choose the maximum value
-			double score = testMove(maxScore,s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
+			double score = testMove(maxScore, s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
 			if(score > maxScore) {
 				maxScore = score;
 				bestMove = i;
@@ -67,7 +67,6 @@ public class PlayerSkeleton {
 		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		int rowCleared = 0;
-		long startTime = System.currentTimeMillis();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
 			s.draw();
@@ -83,7 +82,6 @@ public class PlayerSkeleton {
 				System.out.println(rowCleared);
 			}
 		}
-		long endTime = System.currentTimeMillis();
 		System.out.println("You have completed "+s.getRowsCleared()+" rows.");
 	}
 	
@@ -199,8 +197,7 @@ public class PlayerSkeleton {
      }
      	
      double totalScore = 0;
-     double minScore = Integer.MAX_VALUE;
-     
+     int success = 0;
      //test next move after this move is made
      	for(int nextNextPiece = 0; nextNextPiece < State.N_PIECES; nextNextPiece++) {
      		double secondMaxScore = Integer.MIN_VALUE;
@@ -222,18 +219,18 @@ public class PlayerSkeleton {
 				
 				//max player chooses the maximum value
 				if(score > secondMaxScore) secondMaxScore = score;
-				//prune
-//				if(secondMaxScore > minScore) break;
 			}
- 			//min player chooses the minimum value
-// 			if(secondMaxScore < minScore) minScore = secondMaxScore;
- 			//prune
-// 			if(minScore < maxScore) break;
- 			totalScore += secondMaxScore;
+ 			
+ 			if(secondMaxScore > Integer.MIN_VALUE) {
+ 				success++;
+ 				totalScore += secondMaxScore;
+ 			}
      	}
      	
-//     	return minScore;
-		return 1.0*totalScore/State.N_PIECES;
+     	if(success == 0)
+     		return Integer.MIN_VALUE;
+     	
+		return 1.0*totalScore/success;
 	}
 	 
 	 private double testMove(State state, int orient, int slot, int nextPiece, int[][] gameBoard, int[] top, int[] lastTop) {
