@@ -40,23 +40,23 @@ public class PlayerSkeleton {
 			int testCleared = testMove(orientation, slot, s.getNextPiece(), currentBoard, currentTop,s);
             if (testCleared < 0) { continue; }
             
-            NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, s.getTop(), currentTop, testCleared );
-
-            double score = stateEvaluator.getScore(WEIGHT);
-
-            // Updates best score and best move
-            if (score > maxScore) {
-            	maxScore = score;
-                bestMove = i;
-            }
+//            NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, s.getTop(), currentTop, testCleared );
+//
+//            double score = stateEvaluator.getScore(WEIGHT);
+//
+//            // Updates best score and best move
+//            if (score > maxScore) {
+//            	maxScore = score;
+//                bestMove = i;
+//            }
 			
 			
 			//max player choose the maximum value
-//			double score = testMove(maxScore,s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
-//			if(score > maxScore) {
-//				maxScore = score;
-//				bestMove = i;
-//			}
+			double score = testMove(maxScore,s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
+			if(score > maxScore) {
+				maxScore = score;
+				bestMove = i;
+			}
 		}
 
 		if(bestMove == -1)
@@ -67,14 +67,14 @@ public class PlayerSkeleton {
 	
 	public static void main(String[] args) {
 		State s = new State();
-		new TFrame(s);
+//		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		int rowCleared = 0;
 		long startTime = System.currentTimeMillis();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-			s.draw();
-			s.drawNext(0,0);
+//			s.draw();
+//			s.drawNext(0,0);
 			try {
 				Thread.sleep(0);
 			} catch (InterruptedException e) {
@@ -88,7 +88,6 @@ public class PlayerSkeleton {
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("You have completed "+s.getRowsCleared()+" rows.");
-		System.out.println(String.format("The time cost is %.2f minutes.", (endTime-startTime/60000.0)));
 	}
 	
 	
