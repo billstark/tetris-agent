@@ -69,6 +69,7 @@ public class PlayerSkeleton {
 		State s = new State();
 		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
+		int rowCleared = 0;
 		long startTime = System.currentTimeMillis();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
@@ -80,8 +81,10 @@ public class PlayerSkeleton {
 				e.printStackTrace();
 			}
 			
-			if(s.getRowsCleared()%1000 == 0)
-				System.out.println(s.getRowsCleared());
+			if(s.getRowsCleared()%1000 == 0 && rowCleared != s.getRowsCleared()) {
+				rowCleared = s.getRowsCleared();
+				System.out.println(rowCleared);
+			}
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("You have completed "+s.getRowsCleared()+" rows.");
