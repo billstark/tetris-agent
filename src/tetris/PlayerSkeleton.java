@@ -33,22 +33,10 @@ public class PlayerSkeleton {
 			// Have a copy of the current game board
 			int[][] currentBoard = new int[s.getField().length][];
 			for (int j = 0; j < currentBoard.length; j++) { currentBoard[j] = s.getField()[j].clone(); }
-
-			// Have a copy of the current top
-			int[] currentTop = s.getTop().clone();
 			
-//			int testCleared = testMoveInNormalWay(orientation, slot, s.getNextPiece(), currentBoard, currentTop,s);
-//            if (testCleared < 0) { continue; }
-//            NewHeuristic stateEvaluator = new NewHeuristic(currentBoard, s.getTop(), currentTop, testCleared);
-//            double score = stateEvaluator.getScore(WEIGHT);
-//            // Updates best score and best move
-//            if (score > maxScore) {
-//            	maxScore = score;
-//                bestMove = i;
-//            }
-			
-			double score = testMoveInMinmax(maxScore, s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
-//			double score = testMoveInExpecimax( s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
+			double score = testMove(s, orientation, slot,  s.getNextPiece(), currentBoard, s.getTop().clone(), s.getTop().clone());
+//			double score = testMoveInMinmax(maxScore, s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
+//			double score = testMoveInExpecimax( s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
 			if(score > maxScore) {
 				maxScore = score;
 				bestMove = i;
