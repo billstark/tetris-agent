@@ -3,6 +3,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class GATrainerUtils {
     public static GAParameterVector[] createInitialVectorPopulation() {
@@ -31,6 +34,9 @@ public class GATrainerUtils {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        List<GAParameterVector> list = Arrays.asList(population);
+        Collections.shuffle(list);
+        population = list.toArray(population);
         return population;
     }
     
