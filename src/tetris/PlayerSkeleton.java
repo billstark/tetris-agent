@@ -49,7 +49,7 @@ public class PlayerSkeleton {
 			
 			
 			//max player choose the maximum value
-			double score = testMove(maxScore, s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
+			double score = testMove(s, orientation, slot, s.getNextPiece(), currentBoard, currentTop);
 			if(score > maxScore) {
 				maxScore = score;
 				bestMove = i;
@@ -64,15 +64,15 @@ public class PlayerSkeleton {
 	
 	public static void main(String[] args) {
 		State s = new State();
-		new TFrame(s);
+//		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		int rowCleared = 0;
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-			s.draw();
-			s.drawNext(0,0);
+//			s.draw();
+//			s.drawNext(0,0);
 			try {
-				Thread.sleep(10);
+				Thread.sleep(0);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -144,7 +144,7 @@ public class PlayerSkeleton {
         return rowsCleared;
     }
 	
-	 private double testMove(double maxScore, State state, int orient, int slot, int nextPiece, int[][] gameBoard,int[] top) {
+	 private double testMove(State state, int orient, int slot, int nextPiece, int[][] gameBoard,int[] top) {
 	    	
  		int height = top[slot] - State.getpBottom()[nextPiece][orient][0];
 
@@ -211,11 +211,8 @@ public class PlayerSkeleton {
 				// Have a copy of the current game board
 				int[][] currentBoard = new int[gameBoard.length][];
 				for (int j = 0; j < currentBoard.length; j++) { currentBoard[j] = gameBoard[j].clone(); }
-				
-				// Have a copy of the current top
-				int[] currentTop = top.clone();
 			
-				double score = testMove(state, nextOrientation, nextSlot, nextNextPiece, currentBoard, currentTop, currentTop);
+				double score = testMove(state, nextOrientation, nextSlot, nextNextPiece, currentBoard, top.clone(), top.clone());
 				
 				//max player chooses the maximum value
 				if(score > secondMaxScore) secondMaxScore = score;
