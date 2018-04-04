@@ -29,14 +29,18 @@ public class PlayerSkeleton {
 			// Gets orientation and slot of the current move
 			int orientation = legalMoves[i][State.ORIENT];
 			int slot = legalMoves[i][State.SLOT];
+			
+//			s.draw();
+//			s.clearNext();
+//			s.drawNext(slot, orientation);
 
 			// Have a copy of the current game board
 			int[][] currentBoard = new int[s.getField().length][];
 			for (int j = 0; j < currentBoard.length; j++) { currentBoard[j] = s.getField()[j].clone(); }
 			
-//			double score = testMove(s, orientation, slot,  s.getNextPiece(), currentBoard, s.getTop().clone(), s.getTop().clone());
-			double score = testMoveInMinmax(maxScore, s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
-//			double score = testMoveInExpecimax( s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
+//			double score = testMove(s, orientation, slot,  s.getNextPiece(), currentBoard, s.getTop().clone(), s.getTop().clone(), 1);
+//			double score = testMoveInMinmax(maxScore, s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
+			double score = testMoveInExpecimax( s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
 			if(score > maxScore) {
 				maxScore = score;
 				bestMove = i;
@@ -51,20 +55,12 @@ public class PlayerSkeleton {
 	
 	public static void main(String[] args) {
 		long best = Integer.MIN_VALUE;
-		for(int i=0;i<100;i++) {
+		for(int i=0;i<5;i++) {
 			State s = new State();
-	//		new TFrame(s);
 			PlayerSkeleton p = new PlayerSkeleton();
 			long rowCleared = 0;
 			while(!s.hasLost()) {
 				s.makeMove(p.pickMove(s,s.legalMoves()));
-	//			s.draw();
-	//			s.drawNext(0,0);
-				try {
-					Thread.sleep(0);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 				if(s.getRowsCleared()%1000 == 0 && rowCleared!=s.getRowsCleared()) {
 					rowCleared = s.getRowsCleared();
 					System.out.println(rowCleared);
@@ -106,7 +102,7 @@ public class PlayerSkeleton {
 	 }
 	 
 	private double testMoveInExpecimax(State state, int orient, int slot, int nextPiece, int[][] gameBoard,int[] top) {
-		 moveOneBlock(state, orient, slot, nextPiece, gameBoard, top, 1);
+		 int rowsCleared = moveOneBlock(state, orient, slot, nextPiece, gameBoard, top, 1);
 		 
 	     double totalScore = 0;
 	     int success = 0;
@@ -134,9 +130,10 @@ public class PlayerSkeleton {
  				 totalScore += secondMaxScore;
  			 }
 	     }
+	     NewHeuristic currentHeuristic = new NewHeuristic(gameBoard, state.getTop(), top, rowsCleared);
 	     if(success == 0)
 	    	 return Integer.MIN_VALUE;
-	     return 1.0*totalScore/success;
+	     return 1.0*totalScore/success + currentHeuristic.getScore(WEIGHT);
 	 }
 	 
 	private double testMove(State state, int orient, int slot, int nextPiece, int[][] gameBoard, int[] top, int[] lastTop, int turnNumber) {
