@@ -40,7 +40,7 @@ public class PlayerSkeleton {
 			
 //			double score = testMove(s, orientation, slot,  s.getNextPiece(), currentBoard, s.getTop().clone(), s.getTop().clone(), 1);
 //			double score = testMoveInMinmax(maxScore, s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
-			double score = testMoveInExpecimax( s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
+			double score = testMoveInExpectimax( s, orientation, slot, s.getNextPiece(), currentBoard, s.getTop().clone());
 			if(score > maxScore) {
 				maxScore = score;
 				bestMove = i;
@@ -101,7 +101,7 @@ public class PlayerSkeleton {
      	return minScore;
 	 }
 	 
-	private double testMoveInExpecimax(State state, int orient, int slot, int nextPiece, int[][] gameBoard,int[] top) {
+	private double testMoveInExpectimax(State state, int orient, int slot, int nextPiece, int[][] gameBoard,int[] top) {
 		 int rowsCleared = moveOneBlock(state, orient, slot, nextPiece, gameBoard, top, 1);
 		 
 	     double totalScore = 0;
