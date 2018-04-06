@@ -1,10 +1,7 @@
 package tetris.ga;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class GATrainer {
@@ -143,7 +140,6 @@ class Worker implements Runnable {
             int num_games = GAConfig.NUM_GAMES_IN_ITERATION;
             int max_num_moves = GAConfig.NUM_MOVES_IN_GAME;
             for (int j = 0; j < num_games; j++) {
-                System.out.println(i + " " + j);
                 GAPlayer player = new GAPlayer(vector);
                 player.play(max_num_moves);
                 double fitness = player.fundamentalFitnessEvaluation();
