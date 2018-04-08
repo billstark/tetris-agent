@@ -1,20 +1,29 @@
 package tetris.ga;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class GATrainer {
     private GAParameterVector[] vectorPopulation;
     private static long startTime;
     private int numTrainsCompleted = 0;
+    
+    private static String getTimeString() {
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        return "[" + formatter.format(date) + "]";
+    }
 
     public static void main(String[] args) {
         int num_rounds = GAConfig.NUM_ROUNDS;
         int num_threads = GAConfig.NUM_THREADS;
         startTime = System.currentTimeMillis();
         for (int i = 0; i < num_rounds; i++) {
-            System.out.println("Iteration " + i);
+            System.out.println(GATrainer.getTimeString() + " Iteration " + i);
             GATrainer trainer = new GATrainer();
 //            trainer.vectorPopulation = GATrainerUtils.createInitialVectorPopulation();
             trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
@@ -72,13 +81,6 @@ public class GATrainer {
                     fittest_parent_2 = parent;
                 }
             }
-            if (fittest_parent_1.fitness < 20) {
-                System.out.println("Start");
-                for (int k=0; k<parent_batch.size(); k++) {
-                    System.out.println(parent_batch.get(k).fitness);
-                }
-                System.out.println("End");
-            }
 
             child_batch.add(GAParameterVector.crossover(fittest_parent_1, fittest_parent_2));
         }
@@ -122,7 +124,7 @@ public class GATrainer {
     
     public void roundComplete() {
         numTrainsCompleted ++;
-        System.out.println("Completed " + numTrainsCompleted + " rounds.");
+        System.out.println(GATrainer.getTimeString() + " Completed " + numTrainsCompleted + " rounds.");
     }
 }
 
