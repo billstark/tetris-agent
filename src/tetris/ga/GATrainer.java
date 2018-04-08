@@ -7,6 +7,7 @@ import java.util.List;
 public class GATrainer {
     private GAParameterVector[] vectorPopulation;
     private static long startTime;
+    private int numTrainsCompleted = 0;
 
     public static void main(String[] args) {
         int num_rounds = GAConfig.NUM_ROUNDS;
@@ -33,14 +34,13 @@ public class GATrainer {
         Thread[] threads = new Thread[num_threads];
         int increment = vectorPopulation.length / num_threads;
         for(int i = 0; i < num_threads; i++) {
-            threads[i] = new Thread(new Worker(i * increment, (i + 1) * increment, vectorPopulation));
+            threads[i] = new Thread(new Worker(i * increment, (i + 1) * increment, vectorPopulation, this));
             threads[i].start();
         }
         for(int i = 0; i < num_threads; i++) {
             try {
                 threads[i].join();
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -119,6 +119,11 @@ public class GATrainer {
         }
         System.out.println("Test average fitness: " + total_fitness / population_size);
     }
+    
+    public void roundComplete() {
+        numTrainsCompleted ++;
+        System.out.println("Completed " + numTrainsCompleted + " rounds.");
+    }
 }
 
 
@@ -126,11 +131,13 @@ class Worker implements Runnable {
     final private int minIndex;
     final private int maxIndex;
     final private GAParameterVector[] vectorPopulation;
+    final private GATrainer master;
 
-    public Worker(int minIndex, int maxIndex, GAParameterVector[] vectorPopulation) {
+    public Worker(int minIndex, int maxIndex, GAParameterVector[] vectorPopulation, GATrainer master) {
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;
         this.vectorPopulation = vectorPopulation;
+        this.master = master;
     }
 
     public void run() {
@@ -145,6 +152,7 @@ class Worker implements Runnable {
                 double fitness = player.fundamentalFitnessEvaluation();
                 vector.fitness += fitness;
             }
+            master.roundComplete();
         }
     }
 }

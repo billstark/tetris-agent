@@ -22,10 +22,10 @@ public class GAConfig {
     public static final double MUTATION_AMOUNT_MAX = 0.2;
     
     // Number of rounds to be scheduled
-    public static final int NUM_ROUNDS = 1;
+    public static final int NUM_ROUNDS = 50;
     
     // Number of threads to be created
-    public static final int NUM_THREADS = 20;
+    public static final int NUM_THREADS = 50;
 
     public static final String OUTPUT_FILE_NAME = "GA_train_output.txt";
     public static final String ENCODING_FORM = "UTF-8";
