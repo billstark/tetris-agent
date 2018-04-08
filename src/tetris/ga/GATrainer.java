@@ -99,6 +99,8 @@ public class GATrainer {
 
         // Write to output
         GATrainerUtils.writeToOutput(new_population);
+        
+        System.out.println("Results written. Safe to close.");
 
         // Test best parent's fitness
         double best_result = 0;
