@@ -67,14 +67,3 @@ xx
 
 xx
  xx
-
- Heuristic:
- 1. Line Cleared
- 2. Holes 
- 	a. Number
- 	b. Different weights of holes in different layer
- 3. Sum of Adjacent Difference
- 4. Landing Height
- 5. Aggregate Height
- 6. 最高减最低
- 7. 
