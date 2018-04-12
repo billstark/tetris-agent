@@ -10,16 +10,24 @@ import java.util.List;
 public class GATrainer {
     private GAParameterVector[] vectorPopulation;
     private static long startTime;
+    private int numTrainsCompleted = 0;
+    
+    private static String getTimeString() {
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        return "[" + formatter.format(date) + "]";
+    }
 
     public static void main(String[] args) {
-        int num_rounds = 5;
+        int num_rounds = GAConfig.NUM_ROUNDS;
+        int num_threads = GAConfig.NUM_THREADS;
         startTime = System.currentTimeMillis();
         for (int i = 0; i < num_rounds; i++) {
-            System.out.println("Iteration " + i);
+            System.out.println(GATrainer.getTimeString() + " Iteration " + i);
             GATrainer trainer = new GATrainer();
-            trainer.vectorPopulation = GATrainerUtils.createInitialVectorPopulation();
-//            trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
-            trainer.start(i, num_rounds);
+//            trainer.vectorPopulation = GATrainerUtils.createInitialVectorPopulation();
+            trainer.vectorPopulation = GATrainerUtils.readVectorPopulation();
+            trainer.start(i, num_rounds, num_threads);
         }
 
         long endTime = System.currentTimeMillis();
@@ -29,31 +37,21 @@ public class GATrainer {
     /**
      * Starts the training
      */
-    private void start(int current_round, int num_rounds) {
+    private void start(int current_round, int num_rounds, int num_threads) {
         int population_size = GAConfig.POPULATION_SIZE;
-        long total_rounds = num_rounds * population_size;
 
-        // Run an iteration for every vector
-        for (int i = 0; i < population_size; i++) {
-            if (i % (population_size / 10) == 0) {
-                long current_time = System.currentTimeMillis();
-                long time_diff = current_time - GATrainer.startTime;
-                if (time_diff > 1000) {
-                    long iterations_completed = i + (current_round * population_size);
-                    double completion_percentage = iterations_completed * 1.0 / total_rounds;
-                    double minutes_elapsed = time_diff * 1.0 / 1000 / 60;
-                    double minutes_to_go = minutes_elapsed / completion_percentage - minutes_elapsed;
-                    Date date = new Date((long) (minutes_to_go * 1000 * 60 + current_time));
-                    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    System.out.println();
-                    System.out.println("--------------------------------------------------");
-                    System.out.println((completion_percentage * 100) + "% complete");
-                    System.out.println(minutes_elapsed + " minutes elapsed, " + minutes_to_go + " minutes to go.");
-                    System.out.println("Estimated finish time: " + formatter.format(date));
-                    System.out.println("--------------------------------------------------");
-                }
+        Thread[] threads = new Thread[num_threads];
+        int increment = vectorPopulation.length / num_threads;
+        for(int i = 0; i < num_threads; i++) {
+            threads[i] = new Thread(new Worker(i * increment, (i + 1) * increment, vectorPopulation, this));
+            threads[i].start();
+        }
+        for(int i = 0; i < num_threads; i++) {
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            runIteration(i);
         }
 
         // Create a number of child vectors with high-fitnessed parents
@@ -83,13 +81,6 @@ public class GATrainer {
                     fittest_parent_2 = parent;
                 }
             }
-            if (fittest_parent_1.fitness < 20) {
-                System.out.println("Start");
-                for (int k=0; k<parent_batch.size(); k++) {
-                    System.out.println(parent_batch.get(k).fitness);
-                }
-                System.out.println("End");
-            }
 
             child_batch.add(GAParameterVector.crossover(fittest_parent_1, fittest_parent_2));
         }
@@ -108,13 +99,15 @@ public class GATrainer {
 
         // Write to output
         GATrainerUtils.writeToOutput(new_population);
+        
+        System.out.println("Results written. Safe to close.");
 
         // Test best parent's fitness
-        GAPlayer player = new GAPlayer(vectorPopulation[population_size-1]);
         double best_result = 0;
         double total_result = 0;
-        int num_test_rounds = 10;
+        int num_test_rounds = 50;
         for (i = 0; i < num_test_rounds; i++) {
+            GAPlayer player = new GAPlayer(vectorPopulation[population_size-1]);
             player.play(0);
             double test_fitness = player.fundamentalFitnessEvaluation();
             best_result = Math.max(best_result, test_fitness);
@@ -130,21 +123,40 @@ public class GATrainer {
         }
         System.out.println("Test average fitness: " + total_fitness / population_size);
     }
+    
+    public void roundComplete() {
+        numTrainsCompleted ++;
+        System.out.println(GATrainer.getTimeString() + " Completed " + numTrainsCompleted + " rounds.");
+    }
+}
 
-    /**
-     * Runs an iteration for a vector indexed `i`
-     * @param i index of vector in population
-     */
-    private void runIteration(int i) {
-        GAParameterVector vector = vectorPopulation[i];
-        vector.fitness = 0;
-        int num_games = GAConfig.NUM_GAMES_IN_ITERATION;
-        int max_num_moves = GAConfig.NUM_MOVES_IN_GAME;
-        for (int j = 0; j < num_games; j++) {
-            GAPlayer player = new GAPlayer(vector);
-            player.play(max_num_moves);
-            double fitness = player.fundamentalFitnessEvaluation();
-            vector.fitness += fitness;
+
+class Worker implements Runnable {
+    final private int minIndex;
+    final private int maxIndex;
+    final private GAParameterVector[] vectorPopulation;
+    final private GATrainer master;
+
+    public Worker(int minIndex, int maxIndex, GAParameterVector[] vectorPopulation, GATrainer master) {
+        this.minIndex = minIndex;
+        this.maxIndex = maxIndex;
+        this.vectorPopulation = vectorPopulation;
+        this.master = master;
+    }
+
+    public void run() {
+        for(int i = minIndex; i < maxIndex; i++) {
+            GAParameterVector vector = vectorPopulation[i];
+            vector.fitness = 0;
+            int num_games = GAConfig.NUM_GAMES_IN_ITERATION;
+            int max_num_moves = GAConfig.NUM_MOVES_IN_GAME;
+            for (int j = 0; j < num_games; j++) {
+                GAPlayer player = new GAPlayer(vector);
+                player.play(max_num_moves);
+                double fitness = player.fundamentalFitnessEvaluation();
+                vector.fitness += fitness;
+            }
+            master.roundComplete();
         }
     }
 }

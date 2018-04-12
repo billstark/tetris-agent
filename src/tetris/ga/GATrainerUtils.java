@@ -3,6 +3,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class GATrainerUtils {
     public static GAParameterVector[] createInitialVectorPopulation() {
@@ -21,8 +24,8 @@ public class GATrainerUtils {
             BufferedReader br = new BufferedReader(new FileReader(GAConfig.OUTPUT_FILE_NAME));
             for (int i=0; i<population_size; i++) {
                 String[] weight_strings = br.readLine().split(" ");
-                double[] weight = new double[7];
-                for (int j=0; j<7; j++) {
+                double[] weight = new double[GAParameterVector.NUM_WEIGHTS];
+                for (int j=0; j<GAParameterVector.NUM_WEIGHTS; j++) {
                     weight[j] = Double.parseDouble(weight_strings[j]);
                 }
                 population[i] = new GAParameterVector(weight);
@@ -31,6 +34,9 @@ public class GATrainerUtils {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        List<GAParameterVector> list = Arrays.asList(population);
+        Collections.shuffle(list);
+        population = list.toArray(population);
         return population;
     }
     
