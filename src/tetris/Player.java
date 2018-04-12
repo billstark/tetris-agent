@@ -6,44 +6,63 @@ public class Player {
     // The game state object
     private State state;
 
-    private long linesCleared;
-
     //parameters for fitness
-        private long totalHeight;
-        private double averageHeight;
-        private long totalHole;
-        private double averageHole;
-        private long round;
+    private long totalPileHeight;
+    private int maxPileHeight;
+    private double averagePileHeight;
+    
+    private long totalHoleNumber;
+    private int maxHoleNumber;
+    private double averageHoleNumber;
+    
+    private long totalRowTransition;
+    private int maxRowTransition;
+    private double averageRowTransition;
+    
+    private long totalColumnTransition;
+    private int maxColumnTransition;
+    private double averageColumnTransition;
+  
+    private long round;
 
     /**
      * Constructor
      */
     public Player() {
         this.state = new State();
-        this.linesCleared = 0;
-
-        this.totalHeight = 0;
-        this.averageHeight = 0;
-        this.totalHole = 0;
-        this.averageHole = 0;
+        
+        this.totalPileHeight = 0;
+        this.maxPileHeight = 0;
+        this.averagePileHeight = 0;
+        
+        this.totalHoleNumber = 0;
+        this.maxHoleNumber = 0;
+        this.averageHoleNumber = 0;
+        
+        this.totalRowTransition = 0;
+        this.maxRowTransition = 0;
+        this.averageRowTransition = 0;
+        
+        this.totalColumnTransition = 0;
+        this.maxColumnTransition = 0;
+        this.averageColumnTransition = 0;
+        
         this.round = 0;
-
-//      new TFrame(this.state);
     }
 
     /**
      * The function that executes a game play
      * @param maxTurn Number of turns that the play terminates when reached. 0 or negative input for no limit. 
      */
-    public void play(int maxTurn) {
+    public void play(int maxLinesCleared) {
 
         // Loop until the game is not lost
-        while (!state.lost && (maxTurn <= 0 || state.getTurnNumber() < maxTurn)) {
+        while (!state.lost && (maxLinesCleared <= 0 || state.getRowsCleared() < maxLinesCleared)) {
 
             // Some dumb value for initial best move
             int bestMove = -1;
             double bestScore = Integer.MIN_VALUE;
-
+            NewHeuristic stateEvaluator = null;
             // For every possible legal move, we evaluate the score of that
             // move using the parameters from weight
             for (int i = 0; i < state.legalMoves().length; i++) {
@@ -62,9 +81,10 @@ public class Player {
                 // Test this move (maybe later can change `Heuristic` to a static class)
                 int testCleared = testMove(orientation, slot, state.getNextPiece(), currentBoard, currentTop);
                 if (testCleared < 0) { continue; }
-                Heuristic stateEvaluator = new Heuristic(currentBoard, state.getTop(), currentTop, testCleared);
+                
+                stateEvaluator = new NewHeuristic(currentBoard, state.getTop(), currentTop, testCleared);
 
-                double score = stateEvaluator.getTotalHeuristic(getWeights());
+                double score = stateEvaluator.getScore(getWeights());
 
                 // Updates best score and best move
                 if (score > bestScore) {
@@ -80,93 +100,8 @@ public class Player {
 
             // lets the state to make the best move.
             state.makeMove(bestMove);
-            updateParametersForFitness();
+            updateParametersForFitness(stateEvaluator);
         }
-
-        linesCleared = state.getRowsCleared();
-    }
-
-    /**
-     * A simple fitness evaluation, just the number of lines cleared. This will
-     * allow weights to be pulled to correct direction quickly at the beginning.
-     * And since we are allowing players to run until die at the beginning,
-     * it would be a good evaluation factor
-     * @return
-     */
-    public double fundamentalFitnessEvaluation() {
-        return (double) state.getRowsCleared();
-    }
-
-    /**
-     * This is an fitness evaluation in later stage (when two games run some time
-     * and they are still not finished, we can early stop them and add some more
-     * evaluation factors to evaluate them)
-     * Just a small optimization
-     *
-     * @return a double number that represents the fitness of the weight
-     */
-    public double mediumFitnessEvaluation() {
-
-        // Gets the number of lines cleared
-        int linesCleared = state.getRowsCleared();
-
-        // Gets the game board and game top
-        int[][] gameBoard = state.getField();
-        int[] top = state.getTop();
-
-        return linesCleared + calculateHeightFactor(top) + calculateHoleFactor(gameBoard);
-    }
-
-    /**
-     * Calculates the score brought by low ranged height given the
-     * top of the game board
-     * @param top
-     * @return the score for evaluating game height
-     */
-    private double calculateHeightFactor(int[] top) {
-        int total = 0;
-        int highest = Integer.MIN_VALUE;
-        for (int i = 0; i < top.length; i++) {
-            if (highest < top[i]) {
-                highest = top[i];
-            }
-            total = total + top[i];
-        }
-
-        // returns (highest - mean) / highest * 500
-        return ((highest - (double) (total * 1.0 / top.length)) / highest)  * 500;
-    }
-
-    /**
-     * Calculates the score brought by number of holes
-     * Currently I just used a simple model, which is
-     * NUM_OF_HOLES * -500. This might be improved.
-     * @param board the game board
-     * @return the score
-     */
-    private double calculateHoleFactor(int[][] board) {
-        int count = 0;
-
-        // For each column
-        for (int i = 0; i < State.COLS; i++) {
-
-            // For each position in the column
-            for (int j = 0; j < State.ROWS - 1; j++) {
-
-                // If it is not 0, just continue
-                if (board[j][i] != 0) { continue; }
-
-                // If it is 0, and there exists some block above
-                // increase the count
-                for (int k = j + 1; k < State.ROWS; k++) {
-                    if (board[j][i] == 0 && board[k][i] != 0) {
-                        count++;
-                        break;
-                    }
-                }
-            }
-        }
-        return -count * 50;
     }
 
     /**
@@ -241,32 +176,44 @@ public class Player {
         return rowsCleared;
     }
 
-    public long getLinesCleared() {
-        return linesCleared;
+    public int getLinesCleared() {
+        return state.getRowsCleared();
     }
 
-    public double thirdfitnessEvaluation() {
+    public double fitnessEvaluation() {
         return state.getRowsCleared()
-                + 1.0*(totalHeight - averageHeight) / totalHeight * 500
-                + 1.0*(totalHole - averageHole) / totalHole * 500;
+                + 1.0*(maxPileHeight - averagePileHeight) / maxPileHeight * 500
+                + 1.0*(maxHoleNumber - averageHoleNumber) / maxHoleNumber * 500
+                + 1.0*(maxRowTransition  - averageRowTransition) / maxRowTransition * 500
+                + 1.0*(maxColumnTransition - averageColumnTransition) / maxColumnTransition * 500;
     }
 
-    private void updateParametersForFitness() {
+    private void updateParametersForFitness(NewHeuristic stateEvaluator) {
         round++;
-
-        int currentTotalHeight = 0;
-        int currentHole = 0;
-        for(int i = 0; i < State.COLS; i++) {
-            currentTotalHeight += state.getTop()[i];
-            for(int j=state.getTop()[i]; j >= 0 ; j--) {
-                if(state.getField()[j][i] == 0) currentHole++;
-            }
-        }
-
-        totalHeight += currentTotalHeight;
-        totalHole += currentHole;
-        averageHeight = 1.0*totalHeight/round;
-        averageHole = 1.0*totalHole/round;
+        
+        int currentPileHeight = stateEvaluator.getPileHeight();
+        totalPileHeight += currentPileHeight;
+        if(maxPileHeight < currentPileHeight)
+        	maxPileHeight = currentPileHeight;
+        averagePileHeight = 1.0*totalPileHeight/round;
+        
+        int currentHoleNumber = stateEvaluator.getHoleCount();
+        totalHoleNumber += currentHoleNumber;
+        if(maxHoleNumber < currentHoleNumber)
+        	maxHoleNumber = currentHoleNumber;
+        averageHoleNumber = 1.0*totalHoleNumber/round;
+        
+        int currentRowTransition = stateEvaluator.getRowTransition();
+        totalRowTransition += currentRowTransition;
+        if(maxRowTransition < currentRowTransition)
+        	maxRowTransition = currentRowTransition;
+        averageRowTransition = 1.0*totalRowTransition/round;
+        
+        int currentColumnTransition = stateEvaluator.getColumnTransition();
+        totalColumnTransition += currentColumnTransition;
+        if(maxColumnTransition < currentColumnTransition)
+        	maxColumnTransition = currentColumnTransition;
+        averageColumnTransition = 1.0*totalColumnTransition/round;
     }
     
     protected double[] getWeights() {

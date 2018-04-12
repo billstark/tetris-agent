@@ -14,14 +14,22 @@ class Particle {
 	 * weight of range of height
 	 */
 	public static final int POPULATION_SIZE = 25;
-	public static final int NUM_OF_ATTRIBUTES = 7;
+	public static final int NUM_OF_ATTRIBUTES = 13;
 	
-	private final double SCALE_FACTOR = 0.75;
+	// Defines the constants for PSO velocity updates
+	private final double INERTIA_WEIGHT = 0.72;		
+	private final double COGNITIVE_TERM = 1.42;	 	
+	private final double SOCIAL_TERM = 1.42; 	
+	private final double VELOCITY_BOUND = 0.5;
+	private final double NOISE_LOWER_BOUND = 0.1;
+	
 	private final Random R_GENERATOR = new Random();
 			
 	private double[] position;
 	private double[] bestPosition;
 	private double[] velocity;
+	private double[] bestVelocity;
+	private double noiseFactor = VELOCITY_BOUND / 2;
 	
 	public int id;
 	
@@ -32,11 +40,7 @@ class Particle {
 	// not really fit.
 	private double fitness = Integer.MIN_VALUE;
 	
-	// Defines the constants for PSO velocity updates
-	private final double INERTIA_WEIGHT = 0.72;		
-	private final double COGNITIVE_TERM = 1.42;	 	
-	private final double SOCIAL_TERM = 1.42;	 	
-	private final double VELOCITY_BOUND = 0.5;
+
 	
 	/**
 	 * Constructor of the particle.
@@ -48,8 +52,15 @@ class Particle {
 	public Particle(double[] initialPosition, int id) {
 		initializeNeighbours(id);
 		initializePosition(initialPosition);
-		initializeVelocity();
+		initializeVelocity(null);
 		this.id = id;
+	}
+	
+	public Particle(double[] initialPosition, double[] initialVelocity, double noiseFactor, int id) {
+		initializeNeighbours(id);
+		initializePosition(initialPosition);
+		initializeVelocity(initialVelocity);
+		this.noiseFactor = noiseFactor;
 	}
 	
 	/**
@@ -71,12 +82,27 @@ class Particle {
 	/**
 	 * Initializes the velocity.
 	 * The initial velocity will be limited within [3/4 min bound, 3/4 max bound]
+	 * 
+	 * @param initial feed in velocity, can be null
 	 */
-	private void initializeVelocity() {
-		velocity = new double[NUM_OF_ATTRIBUTES];
-		for (int i = 0; i < velocity.length; i++) {
-			velocity[i] = (R_GENERATOR.nextDouble() - VELOCITY_BOUND) * SCALE_FACTOR;
+	private void initializeVelocity(double[] initialVelocity) {
+		if (initialVelocity == null) {
+			initialVelocity = generateRandomVelocity();
 		}
+		this.velocity = initialVelocity.clone();
+		this.bestVelocity = this.velocity.clone();
+	}
+	
+	/**
+	 * Generates a random velocity at the beginning.
+	 * @return a double array that represents the velocity
+	 */
+	private double[] generateRandomVelocity() {
+		double[] returnVelocity = new double[NUM_OF_ATTRIBUTES];
+		for (int i = 0; i < returnVelocity.length; i++) {
+			returnVelocity[i] = (R_GENERATOR.nextDouble() - VELOCITY_BOUND);
+		}
+		return returnVelocity;
 	}
 
 	/**
@@ -94,13 +120,24 @@ class Particle {
 	 * @param bestSwarmPosition an array that contains the position of the best position in
 	 * 		the swarm society
 	 */
-	public void updateVelocity(double[] bestSwarmPosition) {
+	public void updateVelocity(double[] bestSwarmPosition, double bestSwarmFitness) {
 		for (int i = 0; i < NUM_OF_ATTRIBUTES; i++) {
 			double r1 = R_GENERATOR.nextDouble();
 			double r2 = R_GENERATOR.nextDouble();
 			
 			double cognitiveVelocity = COGNITIVE_TERM * r1 * (bestPosition[i] - position[i]);
 			double socialVelocity = SOCIAL_TERM * r2 * (bestSwarmPosition[i] - position[i]);
+			double noiseVelocity = 0;
+			
+			// Which means that current particle is a neighborhood maximum, hence no social
+			// factor that affects it.
+			if (bestSwarmFitness < fitness) { socialVelocity = 0; }
+			
+			// If two factors are both 0, which means that this particle reaches a "local max"
+			if (cognitiveVelocity == 0 && socialVelocity == 0) {
+				noiseVelocity = R_GENERATOR.nextDouble() * 2 * noiseFactor - noiseFactor;
+				reduceNoise();
+			}
 			
 			velocity[i] = velocity[i] * INERTIA_WEIGHT + cognitiveVelocity + socialVelocity;
 			sanitizeVelocity();
@@ -128,17 +165,26 @@ class Particle {
 	}
 	
 	/**
+	 * Reduces the noise after the particle have been affected by the noise.
+	 * If the noise reaches some lower bound, just ignore it.
+	 */
+	private void reduceNoise() {
+		if (noiseFactor < NOISE_LOWER_BOUND) { return; }
+		noiseFactor = noiseFactor / 2;
+	}
+	
+	/**
 	 * Updates the fitness as well as the corresponding individual 
 	 * best position for this particle
 	 * 
 	 * @param newFitness
 	 * @return the best fitness of the current particle
 	 */
-	public double updateFitness(double newFitness) {
-		if (newFitness <= fitness) { return fitness; }
+	public void updateFitness(double newFitness) {
+		if (newFitness <= fitness) { return; }
 		fitness = newFitness;
 		bestPosition = position.clone();
-		return fitness;
+		bestVelocity = velocity.clone();
 	}
 	
 	/**
@@ -158,6 +204,18 @@ class Particle {
 
 	public double[] getPosition() {
 		return position;
+	}
+	
+	public double[] getBestPosition() {
+		return bestPosition;
+	}
+	
+	public double[] getBestVelocity() {
+		return bestVelocity;
+	}
+	
+	public double getNoiseFactor() {
+		return noiseFactor;
 	}
 	
 }

@@ -14,10 +14,6 @@ public class ParticlePlayer extends Player {
         super();
         this.particle = particle;
     }
-	
-	public double[] getParticlePostion(){
-        return particle.getPosition();
-    }
 
 	@Override
     protected double[] getWeights() {
