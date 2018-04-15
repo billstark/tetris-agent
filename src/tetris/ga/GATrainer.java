@@ -109,7 +109,7 @@ public class GATrainer {
         for (i = 0; i < num_test_rounds; i++) {
             GAPlayer player = new GAPlayer(vectorPopulation[population_size-1]);
             player.play(0);
-            double test_fitness = player.fundamentalFitnessEvaluation();
+            double test_fitness = player.getLinesCleared();
             best_result = Math.max(best_result, test_fitness);
             total_result += test_fitness;
         }
@@ -153,7 +153,7 @@ class Worker implements Runnable {
             for (int j = 0; j < num_games; j++) {
                 GAPlayer player = new GAPlayer(vector);
                 player.play(max_num_moves);
-                double fitness = player.fundamentalFitnessEvaluation();
+                double fitness = player.getLinesCleared();
                 vector.fitness += fitness;
             }
             master.roundComplete();
